@@ -1,0 +1,58 @@
+[package]
+name = "radar-store"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+radar-config = { path = "../radar-config" }
+rusqlite = { version = "0.32", features = ["bundled", "hooks", "functions"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+ureq = { version = "2", features = ["json"] }
+quick-xml = "0.37"
+zip = { version = "0.6", default-features = false, features = ["deflate"] }
+
+[[bin]]
+name = "import_karl"
+path = "src/bin/import_karl.rs"
+
+[[bin]]
+name = "profile_groups"
+path = "src/bin/profile_groups.rs"
+
+[[bin]]
+name = "export_ranked"
+path = "src/bin/export_ranked.rs"
+
+[[bin]]
+name = "fetch_parcels"
+path = "src/bin/fetch_parcels.rs"
+
+[[bin]]
+name = "detect_improvement_zero_to_value"
+path = "src/bin/detect_improvement_zero_to_value.rs"
+
+[[bin]]
+name = "rebuild_current_parcels"
+path = "src/bin/rebuild_current_parcels.rs"
+
+[[bin]]
+name = "check_current_parcels"
+path = "src/bin/check_current_parcels.rs"
+
+[[bin]]
+name = "fetch_fred"
+path = "src/bin/fetch_fred.rs"
+
+[[bin]]
+name = "load_uspto_assignments"
+path = "src/bin/load_uspto_assignments.rs"
+
+[[bin]]
+name = "record_outcome"
+path = "src/bin/record_outcome.rs"
+
+[[bin]]
+name = "load_milwaukee_liquor"
+path = "src/bin/load_milwaukee_liquor.rs"
