@@ -1,0 +1,21 @@
+**The data, as it exists today**
+
+Two counties live: Waukesha (config `dr_data_icp`) and Milwaukee (config `milwaukee_parcels`). Roughly 448,000 current parcels across both, keyed on county plus municipality plus taxkey, not taxkey alone, since Milwaukee and Waukesha taxkeys can collide. Seven owner types, individual, entity, trust, nonprofit, tribal, government, placeholder, all classified from config-driven name rules, not hardcoded.
+
+Beyond parcels: USPTO patent assignments (business addresses, cleanly separated from filing attorneys), Milwaukee liquor licenses (nightly snapshots, diffed for new and ended licenses), Milwaukee LIRA license applications (restaurant openings, manually retrieved, robots.txt blocks automation on that host), FRED economic series (mortgage rates, housing starts, ten series total), and a working vision extraction pipeline that reads scanned license PDFs and pulls structured business fields, deliberately excluding anything personal, no DOB, no driver's license, no home phone, even when visible.
+
+**The two concrete tasks he'd actually own, scoped intentionally narrow**
+
+Entity resolution and address matching. Right now matching across sources is deterministic string normalization, uppercase, strip punctuation, no fuzzy logic. This is why the USPTO-to-parcel match rate sits around 28% and MBA's was much lower. Real fuzzy matching, without introducing false matches, raises that meaningfully.
+
+Hardening the vision extraction pipeline. It's built and proven on a small batch, expanding the field set and testing it against messier, more varied real documents than the handful already run.
+
+**What I want it to actually do, stated plainly rather than aspirationally**
+
+Not a general lead-scoring engine. The core job is: take a public record with a date on it, join it to what's already known about that business or property, and produce a list a real person can act on this week, with every value traceable back to its source and date. Nothing guessed, nothing rendered as certain when it's actually unconfirmed.
+
+Concretely, the shape that's already proven: someone filed a new restaurant license, here's the address, here's who owns the building, here's what changed since last week. That's the whole product. Everything else, scoring, ranking, semantic ICP matching, is in service of getting a person to that list faster and cleaner, not replacing the judgment of who's actually worth calling.
+
+**One thing worth telling him directly, since he'll ask eventually**
+
+There's no config yet for any client beyond the two counties already built. Kevin's MSP use case has been worked through by hand in chat, not built into the config layer. That's likely his first real project once he's oriented: turn what's been proven ad hoc for Kevin into an actual reusable vertical config, the same pattern the two existing ones already follow.
