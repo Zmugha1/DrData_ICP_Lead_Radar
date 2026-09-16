@@ -1,0 +1,28 @@
+schema_version = "1.0.0"
+config_version = "0.1.0"
+vertical_id = "dr_data_icp"
+vertical_display_name = "Dr Data ICP Lead Radar"
+county_fips = "55133"
+county_name = "Waukesha"
+entity_universe = "Parcels"
+
+[[pages]]
+key = "status"
+
+[[pages]]
+key = "owner_groups"
+
+[[pages]]
+key = "assignments"
+
+[[pages]]
+key = "market_watch"
+
+[[pages]]
+key = "coverage"
+
+[[pages]]
+key = "sources"
+
+[[pages]]
+key = "how_to_use"

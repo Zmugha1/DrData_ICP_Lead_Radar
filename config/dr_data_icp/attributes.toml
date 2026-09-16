@@ -1,0 +1,56 @@
+[[attributes]]
+key = "parcel_count"
+source_table = "owner_groups"
+source_column = "total_parcels"
+value_type = "Numeric"
+direction = "Favourable"
+variance_tested = false
+
+# The vacant_lots column counts parcels where improvement_value equals
+# zero, which is a proxy for vacant and not a vacant flag published by
+# the county.
+[[attributes]]
+key = "improvement_value_zero_count"
+source_table = "owner_groups"
+source_column = "vacant_lots"
+value_type = "Numeric"
+direction = "Band"
+variance_tested = false
+
+# Boundaries revised twice on 30 August 2026 and the upper boundary
+# removed. An Active builder ceiling was set first at 20 and then at
+# 60. At 20 it marked the county's actual homebuilders Unfavourable,
+# including Bielinski Homes at 53 vacant parcels and Harbor Homes at
+# 64. At 60 it captured one owner. Both boundaries were reasoned from
+# an assumption about company size rather than from evidence, and
+# neither was supported by the data or by any recorded outcome. The
+# ceiling is deliberately absent. What the distribution supports is a
+# floor: of 2,283 entity groups, 1,801 hold no vacant parcels, 435
+# hold one to five, and 47 hold six or more. Holding vacant land at
+# any scale is rare and is the signal. A ceiling returns only when
+# recorded outcomes show that larger holders convert worse. Do not
+# reintroduce one from reasoning. variance_tested stays false.
+# Label revised 31 August 2026. The previous label, Active builder,
+# asserted more than the field supports. Zero improvement value also
+# means farmland, homeowners association outlots, stormwater
+# detention, wetland, conservancy and right of way remnants. A
+# homeowners association and a maintenance corporation both sit
+# inside this band today. The label now states what the field holds.
+# Active builder is an interpretation and belongs in a description,
+# not in a label.
+[[attributes.bands]]
+min = 0.0
+max = 0.0
+label = "No vacant holdings"
+favourability = "Neutral"
+
+[[attributes.bands]]
+min = 1.0
+max = 5.0
+label = "Small holding"
+favourability = "Neutral"
+
+[[attributes.bands]]
+min = 6.0
+label = "Parcels with no improvement value"
+favourability = "Favourable"

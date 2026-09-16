@@ -1,0 +1,59 @@
+[[series]]
+series_id = "MORTGAGE30US"
+label = "30 year fixed mortgage rate"
+geography = "national"
+included = true
+
+[[series]]
+series_id = "HOUST"
+label = "Housing starts"
+geography = "national"
+included = true
+
+[[series]]
+series_id = "PERMIT"
+label = "Building permits authorised"
+geography = "national"
+included = true
+
+[[series]]
+series_id = "COMPUTSA"
+label = "Housing completions"
+geography = "national"
+included = true
+
+[[series]]
+series_id = "HSN1F"
+label = "New one family houses sold"
+geography = "national"
+included = true
+
+[[series]]
+series_id = "MSACSR"
+label = "Months supply at current sales rate"
+geography = "national"
+included = true
+
+[[series]]
+series_id = "MSPNHSUS"
+label = "Median sales price of new houses"
+geography = "national"
+included = true
+
+[[series]]
+series_id = "TLRESCONS"
+label = "Total residential construction spending"
+geography = "national"
+included = true
+
+[[series]]
+series_id = "WIBPPRIV"
+label = "Private housing units authorised"
+geography = "state"
+included = true
+
+[[series]]
+series_id = "BPPRIV055133"
+label = "Private housing units authorised"
+geography = "county"
+included = true

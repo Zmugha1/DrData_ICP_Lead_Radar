@@ -1,0 +1,29 @@
+[[assignments]]
+capability_key = "vacant_lot_identification"
+zone = "Inside"
+rationale = "ranking owners by improvement value zero surfaced the energy client's largest customer at rank seven with no knowledge of who his customers were"
+assigned_on = "2026-08-30"
+expires_on = "2027-02-28"
+
+[[assignments]]
+capability_key = "owner_type_classification"
+zone = "Inside"
+rationale = "built and working in the first vertical, four values, complete on all rows"
+assigned_on = "2026-08-30"
+expires_on = "2027-02-28"
+
+[[assignments]]
+capability_key = "prospect_ranking_by_likelihood_to_buy"
+zone = "Below"
+rationale = "the rule can be stated and has not been shown to predict anything. Six closed deals across three products is demand evidence, not outcome data"
+assigned_on = "2026-08-30"
+expires_on = "2027-02-28"
+display_caveat = "This is a rule we can state and have not yet shown predicts anything. Treat this list as a starting place rather than a prediction."
+
+[[assignments]]
+capability_key = "predictive_lead_scoring"
+zone = "Above"
+rationale = "no trained model and no outcome history. Six to twelve months of recorded outcomes changes this and nothing else does"
+assigned_on = "2026-08-30"
+expires_on = "2027-02-28"
+display_caveat = "Not available. This system prioritises prospects and does not predict who will buy."

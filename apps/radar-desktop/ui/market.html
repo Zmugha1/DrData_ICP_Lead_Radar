@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Market watch</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="term-info.css" />
+  </head>
+  <body data-page-key="market_watch">
+    <div class="brand-bar"></div>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <p class="wordmark">Lead Radar</p>
+        <p class="wordmark-sub">by Dr. Data</p>
+        <nav class="sidebar-nav"></nav>
+      </aside>
+      <main class="main">
+        <p id="page-disabled" class="slate" hidden></p>
+        <div id="page-body">
+        <p class="card-kicker">Series observations</p>
+        <h1 id="page-title">Market watch</h1>
+        <p class="muted" id="config-line"></p>
+        <p id="command-error" class="caveat" hidden></p>
+        <p class="slate" id="clock-note"></p>
+        <p class="slate" id="grain-note"></p>
+        <div id="cards"></div>
+        <p id="empty-result" class="slate"></p>
+        </div>
+        <p id="error" class="error"></p>
+      </main>
+    </div>
+    <script src="nav.js"></script>
+    <script src="market.js"></script>
+  </body>
+</html>

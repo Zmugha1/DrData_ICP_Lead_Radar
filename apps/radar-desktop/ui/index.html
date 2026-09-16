@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Radar status</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="term-info.css" />
+  </head>
+  <body data-page-key="status">
+    <div class="brand-bar"></div>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <p class="wordmark">Lead Radar</p>
+        <p class="wordmark-sub">by Dr. Data</p>
+        <nav class="sidebar-nav"></nav>
+      </aside>
+      <main class="main">
+        <p id="command-error" class="error" hidden></p>
+        <p id="page-disabled" class="slate" hidden></p>
+        <div id="page-body">
+        <section class="card card-lg">
+          <p class="card-kicker">Store</p>
+          <h1 class="card-title">Status</h1>
+          <p class="card-body">
+            Public county records currently in the store. Nothing here is a prediction.
+          </p>
+          <p class="status-row">
+            Load run
+            <term-info term-key="load_run"></term-info>
+            <span id="load-run">…</span>
+          </p>
+          <p class="status-row">
+            Value as of
+            <term-info term-key="value_as_of"></term-info>
+            <span id="value-as-of">…</span>
+          </p>
+          <p class="status-row">
+            Config fingerprint
+            <term-info term-key="config_fingerprint"></term-info>
+            <span id="config-fingerprint">…</span>
+          </p>
+          <p class="status-row slate" id="source-line"></p>
+        </section>
+        <p id="caveat" class="caveat" hidden></p>
+        </div>
+        <p id="error" class="error"></p>
+      </main>
+    </div>
+    <script src="nav.js"></script>
+    <script src="term-info.js"></script>
+    <script>
+      async function loadStatus() {
+        let snap;
+        try {
+          snap = await invoke("status_snapshot");
+        } catch (err) {
+          showCommandFailure("status_snapshot", err);
+          return;
+        }
+        document.getElementById("load-run").textContent = snap.latest_load_run_id
+          ? String(snap.latest_load_run_id)
+          : "none";
+        document.getElementById("value-as-of").textContent = snap.value_as_of
+          ? snap.value_as_of
+          : "No single value as of is stored on this run. Dates are on the rows.";
+        document.getElementById("config-fingerprint").textContent =
+          snap.config_fingerprint;
+        const extra = [];
+        if (snap.source_id) extra.push("source " + snap.source_id);
+        if (snap.records_written != null) extra.push(snap.records_written + " rows written");
+        document.getElementById("source-line").textContent = extra.join(". ");
+        let options;
+        try {
+          options = await invoke("owner_group_filter_options");
+        } catch (err) {
+          showCommandFailure("owner_group_filter_options", err);
+          return;
+        }
+        const caveat = document.getElementById("caveat");
+        caveat.hidden = false;
+        if (!options.caveat || !options.caveat.assignment_found) {
+          caveat.textContent =
+            "No zone assignment was found for prospect ranking by likelihood to buy.";
+        } else if (options.caveat.text) {
+          caveat.textContent = options.caveat.text;
+        } else {
+          caveat.textContent = "Zone assignment found with no display caveat.";
+        }
+      }
+      applyConfiguredNav().then((enabled) => {
+        if (!enabled) return;
+        loadStatus();
+      });
+    </script>
+  </body>
+</html>

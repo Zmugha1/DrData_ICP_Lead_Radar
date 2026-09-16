@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use serde::Deserialize;
 
@@ -61,15 +61,16 @@ struct CompiledPhrase {
     nfb: HashSet<String>,
 }
 
-/// Phrase lists tokenised once. Same answers as [`OwnerTypeFile::classify`].
+/// Phrase lists tokenised once and indexed by first token.
+/// Same answers as [`OwnerTypeFile::classify`].
 #[derive(Debug, Clone)]
 pub struct CompiledOwnerType {
-    classes: Vec<(String, Vec<CompiledPhrase>)>,
+    indexed: Vec<(String, HashMap<String, Vec<CompiledPhrase>>)>,
 }
 
 impl CompiledOwnerType {
     pub fn from_file(file: &OwnerTypeFile) -> Self {
-        let mut classes = Vec::new();
+        let mut indexed = Vec::new();
         for type_key in &file.precedence {
             let Some(class) = file
                 .classes
@@ -78,26 +79,40 @@ impl CompiledOwnerType {
             else {
                 continue;
             };
-            let phrases = class
-                .phrases
-                .iter()
-                .map(|phrase| CompiledPhrase {
+            let mut by_first: HashMap<String, Vec<CompiledPhrase>> = HashMap::new();
+            for phrase in &class.phrases {
+                let compiled = CompiledPhrase {
                     needle: tokenize(&phrase.text),
                     anchor: phrase.anchor,
                     nfb: follow_exclusions(phrase),
-                })
-                .collect();
-            classes.push((type_key.clone(), phrases));
+                };
+                if compiled.needle.is_empty() {
+                    continue;
+                }
+                by_first
+                    .entry(compiled.needle[0].clone())
+                    .or_default()
+                    .push(compiled);
+            }
+            indexed.push((type_key.clone(), by_first));
         }
-        Self { classes }
+        Self { indexed }
     }
 
     pub fn classify(&self, name: &str) -> String {
         let tokens = tokenize(name);
-        for (type_key, phrases) in &self.classes {
-            for phrase in phrases {
-                if compiled_phrase_matches(&tokens, phrase) {
-                    return type_key.clone();
+        if tokens.is_empty() {
+            return "individual".to_string();
+        }
+        for (type_key, by_first) in &self.indexed {
+            for (i, token) in tokens.iter().enumerate() {
+                let Some(phrases) = by_first.get(token) else {
+                    continue;
+                };
+                for phrase in phrases {
+                    if phrase_starts_at(&tokens, phrase, i) {
+                        return type_key.clone();
+                    }
                 }
             }
         }
@@ -123,24 +138,22 @@ fn follow_exclusions(phrase: &OwnerTypePhrase) -> HashSet<String> {
         .collect()
 }
 
-fn compiled_phrase_matches(tokens: &[String], phrase: &CompiledPhrase) -> bool {
-    let needle = phrase.needle.as_slice();
-    if needle.is_empty() || needle.len() > tokens.len() {
+fn phrase_starts_at(tokens: &[String], phrase: &CompiledPhrase, i: usize) -> bool {
+    let n = phrase.needle.len();
+    if n == 0 || i + n > tokens.len() {
         return false;
     }
-    let n = needle.len();
-    let allowed = |start: usize| {
-        let after = start + n;
-        !(after < tokens.len() && phrase.nfb.contains(&tokens[after]))
-    };
+    if tokens[i..i + n] != phrase.needle[..] {
+        return false;
+    }
+    let after = i + n;
+    if after < tokens.len() && phrase.nfb.contains(&tokens[after]) {
+        return false;
+    }
     match phrase.anchor {
-        PhraseAnchor::Anywhere => (0..=tokens.len() - n)
-            .any(|i| tokens[i..i + n] == *needle && allowed(i)),
-        PhraseAnchor::First => tokens.get(..n) == Some(needle) && allowed(0),
-        PhraseAnchor::Final => {
-            let start = tokens.len() - n;
-            tokens.get(start..) == Some(needle) && allowed(start)
-        }
+        PhraseAnchor::Anywhere => true,
+        PhraseAnchor::First => i == 0,
+        PhraseAnchor::Final => i + n == tokens.len(),
     }
 }
 

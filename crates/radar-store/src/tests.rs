@@ -71,8 +71,12 @@ fn migration_applies_clean() {
     assert!(table_exists(&conn, "outcomes"));
     assert!(table_exists(&conn, "liquor_snapshots"));
     assert!(table_exists(&conn, "liquor_licences"));
+    assert!(table_exists(&conn, "lira_applications"));
+    assert!(table_exists(&conn, "lira_pdf_extractions"));
+    assert!(table_exists(&conn, "lira_pdf_extraction_fields"));
     assert!(table_exists(&conn, "schema_migrations"));
     assert!(view_exists(&conn, "current_entities"));
+    assert!(view_exists(&conn, "lira_non_renewal_applications"));
 }
 
 #[test]
@@ -99,7 +103,7 @@ fn applying_twice_is_a_noop() {
     let count: i64 = conn
         .query_row("SELECT COUNT(*) FROM schema_migrations", [], |row| row.get(0))
         .expect("count schema_migrations");
-    assert_eq!(count, 18);
+    assert_eq!(count, 21);
     assert!(table_exists(&conn, "entities"));
     assert!(view_exists(&conn, "current_entities"));
 }

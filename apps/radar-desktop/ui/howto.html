@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>How to use this</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="term-info.css" />
+  </head>
+  <body data-page-key="how_to_use">
+    <div class="brand-bar"></div>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <p class="wordmark">Lead Radar</p>
+        <p class="wordmark-sub">by Dr. Data</p>
+        <nav class="sidebar-nav"></nav>
+      </aside>
+      <main class="main">
+        <p id="page-disabled" class="slate" hidden></p>
+        <div id="page-body">
+        <p id="command-error" class="caveat" hidden></p>
+        <p class="card-kicker">Guide</p>
+        <h1>How to use this</h1>
+        <p class="card-body">
+          This tool reads public county records and shows who owns what, when the
+          record was published, and what the record does not say.
+        </p>
+        <p class="card-body">
+          It does not predict who will buy. It does not contain phone numbers or
+          email addresses. It does not fill in a missing value with a guess.
+        </p>
+        <p class="card-body">
+          Every figure traces to a load run with a source and a date. If you need
+          to know where a number came from, start there.
+        </p>
+        <p class="card-body">
+          Blank means the source did not publish a figure. It does not mean zero
+          and it does not mean the tool is broken.
+        </p>
+        <p class="card-body">
+          A coverage statement is a stated fact about the source, not a fault in
+          the tool. A gap is something the source does not cover.
+        </p>
+        <h2>Glossary</h2>
+        <div id="glossary">Loading glossary from the store…</div>
+        <h2>
+          Signals
+          <term-info term-key="signal"></term-info>
+        </h2>
+        <p class="card-body">
+          These directions are hypotheses for elicitation, not settings. The
+          expert's answer is what goes into a vertical's config.
+        </p>
+        <p class="card-kicker">
+          Direction
+          <term-info term-key="direction"></term-info>
+          <term-info term-key="direction_favourable"></term-info>
+          <term-info term-key="direction_unfavourable"></term-info>
+          <term-info term-key="direction_ask"></term-info>
+        </p>
+        <p class="card-kicker">
+          Detection method
+          <term-info term-key="detection_run_comparison"></term-info>
+          <term-info term-key="detection_nightly_diff"></term-info>
+        </p>
+        <p class="card-kicker">
+          Source
+          <term-info term-key="source_status"></term-info>
+          Detection
+          <term-info term-key="detection_built"></term-info>
+        </p>
+        <p class="card-body">
+          A signal is only usable when its source is live and its detection is
+          built. Most are not yet.
+        </p>
+        <h3>By vertical</h3>
+        <p class="card-body">
+          Pick a vertical and see its signals with direction, rationale, source
+          and detection.
+        </p>
+        <label>
+          Vertical
+          <select id="vertical-pick"></select>
+        </label>
+        <table id="by-vertical">
+          <thead>
+            <tr>
+              <th>Signal</th>
+              <th>Direction</th>
+              <th>Rationale</th>
+              <th>Source</th>
+              <th>Detection</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <h3>By signal</h3>
+        <p class="card-body">
+          Pick a signal and see how it reads for every vertical it applies to.
+        </p>
+        <label>
+          Signal
+          <select id="signal-pick"></select>
+        </label>
+        <table id="by-signal">
+          <thead>
+            <tr>
+              <th>Vertical</th>
+              <th>Direction</th>
+              <th>Rationale</th>
+              <th>Source</th>
+              <th>Detection</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        </div>
+      </main>
+    </div>
+    <script src="nav.js"></script>
+    <script src="term-info.js"></script>
+    <script>
+      function render(terms) {
+        const root = document.getElementById("glossary");
+        root.innerHTML = "";
+        const groups = new Map();
+        for (const term of terms) {
+          if (!groups.has(term.category)) groups.set(term.category, []);
+          groups.get(term.category).push(term);
+        }
+        for (const [category, rows] of groups) {
+          const heading = document.createElement("h2");
+          heading.textContent = category;
+          root.appendChild(heading);
+          for (const term of rows) {
+            const wrap = document.createElement("div");
+            wrap.className = "glossary-row";
+            const label = document.createElement("strong");
+            label.textContent = term.label;
+            const body = document.createElement("p");
+            body.textContent = term.body;
+            wrap.appendChild(label);
+            const info = document.createElement("term-info");
+            info.setAttribute("term-key", term.term_key);
+            wrap.appendChild(info);
+            wrap.appendChild(body);
+            root.appendChild(wrap);
+          }
+        }
+      }
+
+      function fillPick(select, items, valueKey, labelKey, chosen) {
+        select.innerHTML = "";
+        for (const item of items) {
+          const option = document.createElement("option");
+          option.value = item[valueKey];
+          option.textContent = item[labelKey];
+          select.appendChild(option);
+        }
+        if (chosen && [...select.options].some((option) => option.value === chosen)) {
+          select.value = chosen;
+        }
+      }
+
+      function directionCell(value) {
+        const td = document.createElement("td");
+        td.textContent = value;
+        return td;
+      }
+
+      function renderVerticalRows(rows) {
+        const body = document.querySelector("#by-vertical tbody");
+        body.innerHTML = "";
+        for (const row of rows) {
+          const tr = document.createElement("tr");
+          tr.appendChild(document.createElement("td")).textContent = row.signal_label;
+          tr.appendChild(directionCell(row.direction));
+          tr.appendChild(document.createElement("td")).textContent = row.rationale;
+          tr.appendChild(document.createElement("td")).textContent = row.source_status;
+          tr.appendChild(document.createElement("td")).textContent = row.detection_built;
+          body.appendChild(tr);
+        }
+      }
+
+      function renderSignalRows(rows) {
+        const body = document.querySelector("#by-signal tbody");
+        body.innerHTML = "";
+        for (const row of rows) {
+          const tr = document.createElement("tr");
+          tr.appendChild(document.createElement("td")).textContent = row.vertical_label;
+          tr.appendChild(directionCell(row.direction));
+          tr.appendChild(document.createElement("td")).textContent = row.rationale;
+          tr.appendChild(document.createElement("td")).textContent = row.source_status;
+          tr.appendChild(document.createElement("td")).textContent = row.detection_built;
+          body.appendChild(tr);
+        }
+      }
+
+      async function loadByVertical() {
+        const key = document.getElementById("vertical-pick").value;
+        const page = await invoke("signal_catalogue", {
+          query: { vertical_key: key, signal_key: null },
+        });
+        renderVerticalRows(page.rows);
+      }
+
+      async function loadBySignal() {
+        const key = document.getElementById("signal-pick").value;
+        const page = await invoke("signal_catalogue", {
+          query: { vertical_key: null, signal_key: key },
+        });
+        renderSignalRows(page.rows);
+      }
+
+      applyConfiguredNav().then((enabled) => {
+        if (!enabled) {
+          return;
+        }
+        invoke("glossary")
+          .then((result) => {
+            if (result.kind === "All") {
+              render(result.terms);
+            } else {
+              document.getElementById("glossary").textContent =
+                "Glossary did not return the full table.";
+            }
+          })
+          .catch((err) => {
+            document.getElementById("glossary").textContent = String(err);
+          });
+        invoke("signal_catalogue", { query: {} })
+          .then(async (page) => {
+            fillPick(
+              document.getElementById("vertical-pick"),
+              page.verticals,
+              "vertical_key",
+              "label",
+              "custom_homebuilder"
+            );
+            fillPick(
+              document.getElementById("signal-pick"),
+              page.signals,
+              "signal_key",
+              "label",
+              "improvement_zero_to_value"
+            );
+            document.getElementById("vertical-pick").addEventListener("change", () => {
+              loadByVertical().catch((err) => {
+                document.querySelector("#by-vertical tbody").textContent = String(err);
+              });
+            });
+            document.getElementById("signal-pick").addEventListener("change", () => {
+              loadBySignal().catch((err) => {
+                document.querySelector("#by-signal tbody").textContent = String(err);
+              });
+            });
+            await loadByVertical();
+            await loadBySignal();
+          })
+          .catch((err) => {
+            document.querySelector("#by-vertical tbody").textContent = String(err);
+          });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,61 @@
+publication_lags = []
+
+[[geographies]]
+key = "milwaukee_county"
+level = "Full"
+note = "Parcels and owners. Primary is the AGOL property-information view, 280,674 rows. No assessed, land or improvement values on the primary layer. Those values exist only on retiring LIO Parcels_w_Officials. No historic year-end layer. No municipality lookup table in the store. 349 duplicate TAXKEYs across 280,674 rows, described as stacked condominium polygons by the layer. No Export_Date, so lag cannot be measured from the data."
+
+[[geographies]]
+key = "waukesha_county"
+level = "None"
+note = "This config is Milwaukee. Waukesha is a separate vertical."
+
+[[geographies]]
+key = "washington_county"
+level = "None"
+note = "A discovery day plus its own gaps."
+
+[[geographies]]
+key = "ozaukee_county"
+level = "None"
+note = "A discovery day plus its own gaps."
+
+[[attributes]]
+key = "owner_name"
+level = "Full"
+note = "OWNERNAME1 on the primary layer, 280,400 of 280,674 on the 2 September 2026 profile."
+
+[[attributes]]
+key = "improvement_value"
+level = "Partial"
+note = "Absent from the public primary view. Present on retiring LIO Parcels_w_Officials as ImpValue. When that layer goes, improvement_value is null county-wide."
+
+[[attributes]]
+key = "assessed_value"
+level = "Partial"
+note = "Absent from the public primary view. Present on retiring LIO Parcels_w_Officials as AssessedValue."
+
+[[attributes]]
+key = "land_value"
+level = "Partial"
+note = "Absent from the public primary view. Present on retiring LIO Parcels_w_Officials as LandValue."
+
+[[attributes]]
+key = "property_class"
+level = "Full"
+note = "Code on the primary layer. Eight distinct values. Not Waukesha PROPCLASS."
+
+[[attributes]]
+key = "historic_year_end_vintage"
+level = "None"
+note = "No historic year-end FeatureServer. LIO Historical folder has zero services."
+
+[[attributes]]
+key = "municipality_lookup"
+level = "None"
+note = "No Milwaukee municipality lookup table in the store. MUNINAME is on the parcel layer itself."
+
+[[attributes]]
+key = "trigger_signals"
+level = "None"
+note = "No trigger source is wired. Copied from dr_data_icp; this config is a fetch, not a scored vertical."

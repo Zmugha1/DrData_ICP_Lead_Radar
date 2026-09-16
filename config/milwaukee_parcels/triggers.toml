@@ -1,0 +1,26 @@
+[[triggers]]
+key = "plat_recording"
+source_id = "src-arcgis-waukesha-subs-csms-condos"
+published = true
+wired = false
+lag_days = 150
+
+[[triggers]]
+key = "dfi_registration"
+source_id = "src-dfi-business-registrations"
+published = true
+wired = false
+lag_days = 120
+
+[[triggers]]
+key = "estimator_job_posting"
+source_id = "src-careers-page-diff"
+published = true
+wired = false
+lag_days = 0
+
+[[triggers]]
+key = "succession_language"
+source_id = "src-website-page-diff"
+published = false
+wired = false

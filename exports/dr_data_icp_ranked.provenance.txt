@@ -1,0 +1,6 @@
+exported_at=2026-08-31 02:22:37
+config_version=0.1.0
+rows_exported=2283
+load_run_id=1 value_as_of=Some("2025-12-31")
+load_run_id=1 value_as_of=Some("2026-08-10")
+display_caveat=This is a rule we can state and have not yet shown predicts anything. Treat this list as a starting place rather than a prediction.

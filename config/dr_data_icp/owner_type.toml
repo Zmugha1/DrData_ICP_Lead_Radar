@@ -1,0 +1,124 @@
+# Owner-type classification for query-time reads.
+# Fetch still writes owner_type from the hardcoded rule in parcels.rs.
+#
+# Precedence: first matching type in `precedence` wins.
+# placeholder is first: a marker in the name field is not a party.
+# nonprofit then tribal sit ahead of government so a charity or a
+# tribal nation with COUNTY in the name is not read as the county.
+# government then trust then entity. Remainder is individual.
+#
+# Each phrase has an anchor: first (leading tokens), final (trailing
+# tokens), or anywhere (default).
+#
+# COUNTY also has not_followed_by: the next token must not be a road
+# word. HWY is not in that list because WAUKESHA COUNTY (HWY DEPT) is
+# a public body and would be excluded.
+
+precedence = ["placeholder", "nonprofit", "tribal", "government", "trust", "entity"]
+exclude_from_groups_default = ["government", "placeholder", "tribal"]
+
+[[classes]]
+type_key = "placeholder"
+phrases = [
+  { text = "INCOMPLETE TAXROLL INFORMATION", anchor = "anywhere" },
+]
+
+[[classes]]
+type_key = "nonprofit"
+phrases = [
+  { text = "HABITAT FOR HUMANITY" },
+  { text = "SALVATION ARMY" },
+  { text = "GOODWILL INDUSTRIES" },
+  { text = "UNITED WAY" },
+  { text = "ST VINCENT" },
+  { text = "CHRISTIAN ASSOC" },
+  { text = "ARCHDIOCESE" },
+  { text = "CONSERVANCY" },
+  { text = "CONGREGATION" },
+  { text = "SYNAGOGUE" },
+  { text = "MINISTRIES" },
+  { text = "PRESBYTERIAN" },
+  { text = "METHODIST" },
+  { text = "LUTHERAN" },
+  { text = "CATHOLIC" },
+  { text = "BAPTIST" },
+  { text = "DIOCESE" },
+  { text = "FOUNDATION" },
+  { text = "CHURCH" },
+  { text = "YMCA" },
+]
+
+[[classes]]
+type_key = "tribal"
+phrases = [
+  { text = "FOREST COUNTY POTAWATOMI" },
+  { text = "HO CHUNK" },
+  { text = "ONEIDA TRIBE" },
+]
+
+[[classes]]
+type_key = "government"
+phrases = [
+  { text = "CITY OF", anchor = "anywhere" },
+  { text = "VILLAGE OF", anchor = "anywhere" },
+  { text = "TOWN OF", anchor = "anywhere" },
+  { text = "COUNTY OF", anchor = "anywhere" },
+  { text = "STATE OF", anchor = "anywhere" },
+  { text = "UNITED STATES", anchor = "anywhere" },
+  { text = "COUNTY", anchor = "anywhere", not_followed_by = ["ROAD", "RD", "LINE", "TRUNK", "HIGHWAY", "TRL", "TRAIL"] },
+  { text = "HOUSING AUTHORITY", anchor = "anywhere" },
+  { text = "HOUSING AUTH", anchor = "anywhere" },
+  { text = "SCHOOL DISTRICT", anchor = "anywhere" },
+  { text = "SANITARY DISTRICT", anchor = "anywhere" },
+  { text = "WISCONSIN DNR", anchor = "anywhere" },
+  { text = "DNR", anchor = "anywhere" },
+  { text = "DEPARTMENT OF", anchor = "anywhere" },
+  { text = "DEPT OF", anchor = "anywhere" },
+  { text = "MUNICIPAL", anchor = "anywhere" },
+  { text = "REDEV AUTH", anchor = "anywhere" },
+  { text = "REDEVELOPMENT AUTHORITY", anchor = "anywhere" },
+]
+
+[[classes]]
+type_key = "trust"
+phrases = [
+  { text = "TRUST" },
+  { text = "TRUSTS" },
+  { text = "TRST" },
+  { text = "TR" },
+  { text = "TRUSTEE" },
+  { text = "TRUSTEES" },
+]
+
+[[classes]]
+type_key = "entity"
+phrases = [
+  { text = "LLC" },
+  { text = "INC" },
+  { text = "INCORPORATED" },
+  { text = "CORP" },
+  { text = "CORPORATION" },
+  { text = "LP" },
+  { text = "LLP" },
+  { text = "LTD" },
+  { text = "COMPANY" },
+  { text = "PARTNERSHIP" },
+  { text = "LIMITED PARTNERSHIP" },
+  { text = "ASSOCIATION" },
+  { text = "ASSOC" },
+  { text = "ASSOCIATES" },
+  { text = "CHURCH" },
+  { text = "BANK" },
+  { text = "HOMEOWNERS" },
+  { text = "CONDOMINIUM" },
+  { text = "CONDO" },
+  { text = "PROPERTIES" },
+  { text = "HOLDINGS" },
+  { text = "HOLDING" },
+  { text = "ENTERPRISES" },
+  { text = "FOUNDATION" },
+  { text = "AUTHORITY" },
+  { text = "CLUB" },
+  { text = "HOA" },
+  { text = "ESTATE OF" },
+]

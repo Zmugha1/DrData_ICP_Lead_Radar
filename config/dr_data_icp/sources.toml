@@ -1,0 +1,232 @@
+[[sources]]
+source_id = "src-waukesha-parcels"
+display_name = "Waukesha County parcels"
+family = "PropertyEvent"
+kind = "ArcGis"
+status = "Live"
+cadence_days = 365
+publication_lag_days = 9
+lag_measured = true
+url_verified = true
+requires_key = false
+notes = "loaded filtered to PROPCLASS equals 1 and assembled from two vintages, 2025-12-31 and 2026-08-10. publication_lag_days measured from Export_Date on the live layer against the fetch date on 1 September 2026. One observation rather than a series."
+
+[[sources]]
+source_id = "src-waukesha-muni-lookup"
+display_name = "Waukesha civil divisions"
+family = "PropertyEvent"
+kind = "ArcGis"
+status = "Live"
+cadence_days = 365
+lag_measured = false
+url_verified = true
+requires_key = false
+notes = "authoritative municipality code to name mapping"
+
+[[sources]]
+source_id = "src-arcgis-waukesha-subs-csms-condos"
+display_name = "Subdivisions CSMs and condos"
+family = "PropertyEvent"
+kind = "ArcGis"
+status = "Profiled"
+lag_measured = false
+url_verified = true
+requires_key = false
+notes = "registered in the first vertical with no adapter. Carries recorded date and a developer or applicant name. Highest value addition available because it converts fit into timing"
+
+[[sources]]
+source_id = "src-dfi-business-registrations"
+display_name = "Wisconsin DFI business registrations"
+family = "BusinessFormation"
+kind = "Csv"
+status = "Profiled"
+cadence_days = 30
+lag_measured = false
+url_verified = false
+requires_key = false
+notes = "verified 30 August 2026. Full corporate database via ShareFile plus a monthly delta at five dollars. Holds legal entity name, DFI entity ID, effective date, entity type, registered agent, registered office address and status. Does not hold LLC members, officers, sole proprietors, tradenames or DBAs. Intended future spine. This source has no fetchable URL. It is a purchased file, delivered by ShareFile for the full corporate database and by email for the monthly delta. There is no endpoint to verify. The 30 August 2026 verification refers to the dataset's contents and terms, meaning the field list and the five dollar monthly price, not to a URL. Acquisition requires contacting DFI Corporations at 608-261-7577 or DFICorporations@dfi.wisconsin.gov to obtain the full database price and format. That call has not been made."
+
+[[sources]]
+source_id = "src-careers-page-diff"
+display_name = "Prospect careers page monitoring"
+family = "OwnedEarned"
+kind = "PageDiff"
+status = "Scoped"
+lag_measured = false
+url_verified = false
+requires_key = false
+notes = "no usable public job board API. Route is page diff with semantic normalisation against each company's own careers page, which requires a domain per prospect"
+
+[[sources]]
+source_id = "src-website-page-diff"
+display_name = "Prospect website monitoring for succession language"
+family = "OwnedEarned"
+kind = "PageDiff"
+status = "Scoped"
+lag_measured = false
+url_verified = false
+requires_key = false
+notes = "fit signal rather than trigger. No lag and no urgency"
+
+[[sources]]
+source_id = "src-milwaukee-liquor-licences"
+display_name = "Milwaukee liquor licences"
+family = "PropertyEvent"
+kind = "Csv"
+status = "Live"
+cadence_days = 1
+lag_measured = false
+url = "https://data.milwaukee.gov/dataset/1aba8821-f5f6-4031-b469-5c39c90e99c7/resource/45c027b5-fa66-4de2-aa7e-d9314292093d/download/liquorlicenses.csv"
+url_verified = true
+requires_key = false
+attribution = "City of Milwaukee Open Data Portal, CC BY 4.0."
+notes = "profiled 1 September 2026. 1,255 active licences, nightly overwrite. Six licence classes, Class B Tavern 892. LICENSEE carries an Agt or SP suffix, 1,196 agent and 57 sole proprietor. TAXKEY joins to Milwaukee County parcels, 15 rows carry a 0000000000 placeholder. No licence number and no new-versus-renewal column, so EFF_DATE is a term start rather than an issuance date and new licences require a stored baseline and a nightly diff. Adapter fetches the CKAN CSV with a browser User-Agent. Tier 3 hospitality."
+
+[[sources]]
+source_id = "src-npi-registry"
+display_name = "NPPES national provider registry"
+family = "BusinessFormation"
+kind = "Csv"
+status = "Scoped"
+cadence_days = 7
+lag_measured = false
+url_verified = false
+requires_key = false
+notes = "free weekly incremental and monthly full file from CMS under FOIA disclosure. Ten digit NPI key, national, complete for medical, dental, veterinary and behavioural health. Provider Enumeration Date is a first-assignment date, not a term start, so it is a genuine opening-day signal. Tier 2 clinical. Not profiled."
+
+[[sources]]
+source_id = "src-sam-gov"
+display_name = "SAM.gov federal contractor registrations"
+family = "BusinessFormation"
+kind = "Api"
+status = "Scoped"
+lag_measured = false
+url_verified = false
+requires_key = true
+notes = "free Entity Management API with an account, plus bulk extracts. UEI key, NAICS included. Registration Date and Activation Date. Narrow universe, skews to construction and IT. Not profiled."
+
+[[sources]]
+source_id = "src-datcp-licences"
+display_name = "Wisconsin DATCP food and pest licences"
+family = "LegalPublicRecord"
+kind = "ManualUpload"
+status = "Scoped"
+lag_measured = false
+url_verified = false
+requires_key = false
+notes = "restaurants, retail food, food processors and pest control. Lookup tools carry issuance and expiry dates. Bulk route unknown. Serves Tier 3 hospitality and the pest vertical. Not profiled."
+
+[[sources]]
+source_id = "src-dhs-care-facilities"
+display_name = "Wisconsin DHS care facility registries"
+family = "LegalPublicRecord"
+kind = "ManualUpload"
+status = "Scoped"
+lag_measured = false
+url_verified = false
+requires_key = false
+notes = "assisted living, adult family homes, childcare. Carries certification and licence effective dates. Tier 2 with the strongest custody argument. Not profiled."
+
+[[sources]]
+source_id = "src-dsps-credentials"
+display_name = "Wisconsin DSPS credential holders"
+family = "PropertyEvent"
+kind = "Api"
+status = "Scoped"
+lag_measured = false
+url_verified = false
+requires_key = true
+notes = "licensed trades, electrical, plumbing, HVAC, dwelling contractor. Issue date and expiry per credential. A REST API is said to exist for authorised third parties, and what authorised means in practice is unverified. Tier 1 trades. Not profiled."
+
+[[sources]]
+source_id = "src-municipal-contractor-rolls"
+display_name = "Waukesha municipal contractor registration"
+family = "PropertyEvent"
+kind = "ManualUpload"
+status = "Scoped"
+lag_measured = false
+url_verified = false
+requires_key = false
+notes = "fourteen municipalities, each publishing separately if at all. Not one integration. Tier 1 trades. Not profiled."
+
+[[sources]]
+source_id = "src-municipal-plan-commission-agendas"
+display_name = "Municipal plan commission agendas"
+family = "LegalPublicRecord"
+kind = "ManualUpload"
+status = "Scoped"
+lag_measured = false
+url_verified = false
+requires_key = false
+notes = "profiled 3 September 2026 across fourteen Waukesha municipalities. Six distinct portal systems with a working public listing and no constructible document URL, so a packet must be discovered from a listing page rather than fetched by date. Item shape varies: Village of Pewaukee carries applicant, owner, parcel key, acreage and zoning; Brookfield carries a tax key and an applicant only; Waukesha City and New Berlin carry no parcel key at all. Parcel keys resolved at 18 of 45 after the residential filter was removed, and punctuation stripping would reach 31. This is the earliest signal available, twelve to twenty-four months ahead of a permit, and the most expensive to build."
+
+[[sources]]
+source_id = "src-dor-sellers-permits"
+display_name = "Wisconsin DOR seller's permits"
+family = "BusinessFormation"
+kind = "ManualUpload"
+status = "Refused"
+lag_measured = false
+url_verified = false
+requires_key = false
+notes = "every business selling taxable goods holds one before opening, so the permit date would be the closest thing to a universal opening-day signal across retail and hospitality. No bulk open data route exists. The available routes are scraping a state lookup tool, which is the same objection recorded against CCAP, or a records request to the agency. Refused pending a written request. Recorded so it is not rediscovered."
+
+[[sources]]
+source_id = "src-mba-directory"
+display_name = "Metro Builders Association member directory"
+family = "OwnedEarned"
+kind = "Api"
+status = "Scoped"
+lag_measured = false
+url_verified = true
+requires_key = false
+notes = "profiled 31 August 2026. 1,099 records publicly retrievable, 642 companies and 457 people. 576 of 642 companies carry a website, which is the domain source that unblocks site fetch and careers monitoring. Member type comes in bulk, 163 Builder Members. Categories and member since require a per-member fetch. Written permission granted by MBA. Tier 1 trades."
+
+[[sources]]
+source_id = "src-uspto"
+display_name = "USPTO filings"
+family = "LegalPublicRecord"
+kind = "Csv"
+status = "Scoped"
+lag_measured = false
+url_verified = false
+requires_key = false
+notes = "free federal bulk data and APIs, carries a Nice class or CPC code which is the industry classification DFI lacks, plus a filing date and an applicant name and address. Two assumptions untested: whether county-level volume is more than a handful a year, and whether the assignee address is the operating site or the filing attorney's office. Relevant to manufacturers and custom fabricators, and to Tier 2 intellectual property holders whose research cannot go into a cloud tool."
+
+[[sources]]
+source_id = "src-noaa-storm-events"
+display_name = "NOAA storm events"
+family = "PropertyEvent"
+kind = "Csv"
+status = "Scoped"
+lag_measured = false
+url_verified = false
+requires_key = false
+notes = "NCEI Storm Events Database is a free federal CSV with county, event type and begin date. Not profiled. Lag and Waukesha or Milwaukee annual volume are unmeasured. Intended for restoration and trade timing after weather, not as a parcel spine."
+
+[[sources]]
+source_id = "src-fred"
+display_name = "FRED economic series"
+family = "PropertyEvent"
+kind = "Api"
+status = "Live"
+lag_measured = false
+url = "https://api.stlouisfed.org/fred/series/observations"
+url_verified = true
+requires_key = true
+attribution = "Federal Reserve Bank of St. Louis"
+notes = "FRED observations by series_id. Full history. A full stop is a missing value, stored as null, not zero. Key is FRED_API_KEY in the process environment, never a config file."
+
+[[sources]]
+source_id = "src-uspto-assignments"
+display_name = "USPTO patent assignment daily files"
+family = "LegalPublicRecord"
+kind = "ManualUpload"
+status = "Live"
+cadence_days = 7
+lag_measured = false
+url = "https://data.uspto.gov/bulkdata/datasets/pasdl"
+url_verified = true
+requires_key = false
+attribution = "United States Patent and Trademark Office. Public domain."
+notes = "PASDL daily zip files are downloaded by hand because automated fetch requires an ODP API key and ID.me verification. A constructed GET on data.uspto.gov returns HTTP 200 with an Angular HTML shell."

@@ -1,0 +1,79 @@
+/*
+ * A tooltip is optional reading. A caveat is required rendering.
+ *
+ * zones.toml carries display_caveat on the Below Zone assignment for
+ * prospect_ranking_by_likelihood_to_buy. That text is always on
+ * screen wherever a ranking appears. It never becomes a tooltip and
+ * it is never behind a click.
+ *
+ * This control is for glossary terms only. Do not put a display_caveat
+ * behind TermInfo. The owner groups page renders display_caveat above
+ * the list, always, when a ranked list is shown.
+ */
+
+.term-info {
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
+  margin-left: 0.2em;
+}
+
+.term-info-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1em;
+  height: 1.1em;
+  padding: 0;
+  border: 1px solid var(--cardBorder);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--navy);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.term-info-marker:focus {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+.term-info-panel {
+  position: absolute;
+  z-index: 8;
+  left: 0;
+  top: 1.5em;
+  width: 18rem;
+  padding: 12px 14px;
+  border: 1px solid var(--cardBorder);
+  border-radius: var(--radius-card);
+  background: var(--white);
+  box-shadow: var(--shadow-card);
+  color: var(--navy);
+}
+
+.term-info-panel[hidden] {
+  display: none;
+}
+
+.term-info-label {
+  font-weight: 600;
+  margin: 0 0 0.35rem;
+  color: var(--navy);
+}
+
+.term-info-body,
+.term-info-missing {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--slate);
+}
+
+.term-info-missing {
+  color: var(--coralTxt);
+}

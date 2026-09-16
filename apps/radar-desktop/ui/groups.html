@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Owner groups</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="term-info.css" />
+  </head>
+  <body data-page-key="owner_groups">
+    <div class="brand-bar"></div>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <p class="wordmark">Lead Radar</p>
+        <p class="wordmark-sub">by Dr. Data</p>
+        <nav class="sidebar-nav"></nav>
+      </aside>
+      <main class="main">
+        <p id="command-error" class="error" hidden></p>
+        <p id="page-disabled" class="slate" hidden></p>
+        <div id="page-body">
+        <p class="card-kicker">Prospect list</p>
+        <h1 id="page-title">Owner groups</h1>
+        <p class="muted" id="config-line"></p>
+        <p id="caveat" class="caveat" hidden></p>
+        <form id="filters" class="filter-row">
+          <label>
+            County
+            <select id="county"></select>
+          </label>
+          <label>
+            Municipality
+            <select id="municipality"></select>
+          </label>
+          <label>
+            <span class="filter-caption">
+              Owner type
+              <term-info term-key="nonprofit"></term-info>
+              <term-info term-key="tribal"></term-info>
+            </span>
+            <select id="owner-type"></select>
+          </label>
+          <label class="filter-check">
+            <input id="hide-government" type="checkbox" checked />
+            Hide government, tribal, and placeholder owners
+          </label>
+          <label>
+            Band
+            <select id="band"></select>
+          </label>
+          <label>
+            Minimum parcels
+            <input id="min-parcels" type="number" min="0" step="1" />
+          </label>
+          <label>
+            Minimum improvement-value-zero count
+            <input id="min-zero" type="number" min="0" step="1" />
+          </label>
+          <label>
+            Name contains
+            <input id="name-contains" type="text" />
+          </label>
+          <div class="card-actions">
+            <button class="btn-primary" type="submit">Apply filters</button>
+            <button class="btn-secondary" type="button" id="export">
+              Export filtered list
+            </button>
+          </div>
+        </form>
+        <p id="default-filter-notice" class="slate"></p>
+        <p id="active-filters" class="slate"></p>
+        <p id="counts" class="slate"></p>
+        <pre id="predicate" class="predicate"></pre>
+        <p id="page-controls" class="slate"></p>
+        <p id="empty-result" class="slate"></p>
+        <div class="card table-wrap">
+          <table id="groups">
+            <thead>
+              <tr>
+                <th>Display name</th>
+                <th>Group key</th>
+                <th>Member names</th>
+                <th>Parcels</th>
+                <th>Improvement value zero</th>
+                <th>Municipalities</th>
+                <th>Owner type <term-info term-key="nonprofit"></term-info> <term-info term-key="tribal"></term-info></th>
+                <th>Mixed owner type</th>
+                <th>Band</th>
+                <th>Favourability</th>
+                <th>Value as of</th>
+                <th>Outcome</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <section id="parcels-panel" class="card card-lg" hidden>
+          <h2 id="parcels-heading">Parcels</h2>
+          <div class="table-wrap">
+            <table id="parcels">
+              <thead>
+                <tr>
+                  <th>Taxkey <term-info term-key="taxkey"></term-info></th>
+                  <th>Site address</th>
+                  <th>Municipality</th>
+                  <th>Owner name on the deed</th>
+                  <th>Assessed value <term-info term-key="assessed_value"></term-info></th>
+                  <th>Improvement value <term-info term-key="improvement_value"></term-info></th>
+                  <th>Land value <term-info term-key="land_value"></term-info></th>
+                  <th>Property class <term-info term-key="prop_class"></term-info></th>
+                  <th>Value source <term-info term-key="value_source"></term-info></th>
+                  <th>Value as of <term-info term-key="value_as_of"></term-info></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+        <section id="outcome-panel" class="card card-lg" hidden>
+          <h2 id="outcome-heading">Outcomes</h2>
+          <p class="slate" id="outcome-subject"></p>
+          <div class="table-wrap">
+            <table id="outcome-history">
+              <thead>
+                <tr>
+                  <th>Action</th>
+                  <th>Date</th>
+                  <th>Reason</th>
+                  <th>Config fingerprint</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <form id="outcome-form" class="filter-row">
+            <label>
+              Action
+              <select id="outcome-action"></select>
+            </label>
+            <label>
+              Occurred on
+              <input id="outcome-date" type="date" />
+            </label>
+            <label>
+              Reason
+              <input id="outcome-reason" type="text" />
+            </label>
+            <div class="card-actions">
+              <button class="btn-primary" type="submit">Record outcome</button>
+            </div>
+          </form>
+          <p id="outcome-error" class="error"></p>
+        </section>
+        </div>
+        <p id="error" class="error"></p>
+      </main>
+    </div>
+    <script src="nav.js"></script>
+    <script src="term-info.js"></script>
+    <script src="outcomes.js"></script>
+    <script src="groups.js"></script>
+  </body>
+</html>

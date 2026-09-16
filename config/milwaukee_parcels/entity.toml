@@ -1,0 +1,56 @@
+spine_source_id = "src-milwaukee-parcels"
+county_fips = "55079"
+natural_key_field = "taxkey"
+has_stable_key = true
+# Profiled 2 September 2026, checked in full on 3 September 2026:
+# 280,674 rows, 349 two-row TAXKEY groups. None are stacked geometry.
+# All 349 are distinct parcels from two merged source systems
+# (RecSource MCTREAS suburban treasurer records and RecSource MPROP
+# City of Milwaukee). Collapsing them would have destroyed 349 real
+# records. The rule stays implemented and off.
+collapse_duplicate_geometry = false
+# No Fallback layer. V24 requires spine_coverage_fallback_threshold
+# to be absent when none exists.
+attachments = []
+
+# Municipality names are on the parcel layer (MUNINAME beside MCD).
+# There is no separate Milwaukee civil-divisions service.
+[lookup_source]
+kind = "Derived"
+code_field = "MCD"
+name_field = "MUNINAME"
+
+[[layers]]
+role = "Primary"
+url = "https://services2.arcgis.com/s1wgJQKbKJihhhaT/arcgis/rest/services/Milwaukee_County_Parcels_Property_Information_view/FeatureServer/58"
+where_clause = "1=1"
+# vintage_field is absent. The layer has no Export_Date. Lag cannot
+# be measured from the data.
+
+[layers.field_map]
+taxkey = "TAXKEY"
+muni_code = "MCD"
+owner_name = "OWNERNAME1"
+site_address = "ADDRESS"
+mail_address_1 = "OWNERADDR"
+prop_class = "Code"
+rec_source = "RecSource"
+
+[[layers]]
+role = "ValueSource"
+url = "https://lio.milwaukeecountywi.gov/arcgis/rest/services/PropertyInfo/Parcels_w_Officials/FeatureServer/0"
+where_clause = "1=1"
+# This layer is scheduled for retirement. It is the only public
+# source of Milwaukee assessed values. When it goes, the value
+# columns become null county-wide.
+# Confirmed 2 September 2026 on the live definition: value fields
+# are AssessedValue, ImpValue, LandValue. The join key is Taxkey
+# (not TAXKEY). Owner is Owner_1 (not OWNERNAME1).
+
+[layers.field_map]
+taxkey = "Taxkey"
+muni_code = "MCD"
+owner_name = "Owner_1"
+assessed_value = "AssessedValue"
+improvement_value = "ImpValue"
+land_value = "LandValue"

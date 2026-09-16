@@ -81,6 +81,18 @@ pub fn bundled_migrations() -> Vec<Migration> {
             filename: "018_current_parcels_owner_group_index.sql",
             sql: include_str!("../migrations/018_current_parcels_owner_group_index.sql"),
         },
+        Migration {
+            filename: "019_lira_applications.sql",
+            sql: include_str!("../migrations/019_lira_applications.sql"),
+        },
+        Migration {
+            filename: "020_lira_non_renewal_exclude_null_type.sql",
+            sql: include_str!("../migrations/020_lira_non_renewal_exclude_null_type.sql"),
+        },
+        Migration {
+            filename: "021_lira_pdf_extractions.sql",
+            sql: include_str!("../migrations/021_lira_pdf_extractions.sql"),
+        },
     ]
 }
 

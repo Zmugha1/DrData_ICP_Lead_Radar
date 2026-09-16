@@ -1,0 +1,31 @@
+approval_required_by_default = true
+never_stored = [
+    "client decisions",
+    "client customers",
+    "client job history",
+    "client notes",
+    "client pricing",
+    "client profile",
+    "client elicitation logs",
+]
+cloud_extraction_allowed_for = [
+    "public parcel records",
+    "public plat records",
+    "public business registrations",
+]
+
+[[absence_rules]]
+item = "owner_name"
+rule = "Drop"
+
+[[absence_rules]]
+item = "municipality"
+rule = "Flag"
+
+[[absence_rules]]
+item = "trigger"
+rule = "Flag"
+
+[[absence_rules]]
+item = "improvement_value"
+rule = "Flag"

@@ -1,0 +1,11 @@
+.env
+.env.local
+.env.*
+data/*.db
+data/*.db-*
+target/
+target-*/
+__pycache__/
+*.pyc
+reports/*.xlsx
+reports/~$*

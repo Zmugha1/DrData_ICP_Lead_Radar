@@ -1,0 +1,27 @@
+[[jobs]]
+key = "market_watcher"
+label = "Market Watcher build"
+ticket_low = 2500
+ticket_high = 15000
+
+[[jobs]]
+key = "agentpulse"
+label = "AgentPulse"
+ticket_low = 2500
+ticket_high = 15000
+
+[[jobs]]
+key = "plan_generator"
+label = "Plan Generator"
+ticket_low = 2500
+ticket_high = 15000
+
+[[jobs]]
+key = "tier3_configuration"
+label = "Tier 3 configuration"
+ticket_low = 500
+ticket_high = 2500
+
+[capacity]
+builds_concurrent = 2
+first_meetings_per_week = 3

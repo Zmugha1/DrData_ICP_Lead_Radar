@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Assignments</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="term-info.css" />
+  </head>
+  <body data-page-key="assignments">
+    <div class="brand-bar"></div>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <p class="wordmark">Lead Radar</p>
+        <p class="wordmark-sub">by Dr. Data</p>
+        <nav class="sidebar-nav"></nav>
+      </aside>
+      <main class="main">
+        <p id="page-disabled" class="slate" hidden></p>
+        <div id="page-body">
+        <p class="card-kicker">USPTO patent assignments</p>
+        <h1 id="page-title">Assignments</h1>
+        <p class="muted" id="config-line"></p>
+        <p id="command-error" class="caveat" hidden></p>
+
+        <section class="card card-lg">
+          <p class="card-kicker">Folder loader</p>
+          <p class="slate" id="folder-status"></p>
+          <p class="slate">
+            Daily files require an ODP API key and ID.me verification. A constructed URL returns a 20,666 byte Angular shell with HTTP 200, which looks like success and is not. This button rereads the folder. It does not fetch.
+          </p>
+          <div class="card-actions">
+            <!-- Daily files require an ODP API key and ID.me verification. A constructed URL returns a 20,666 byte Angular shell with HTTP 200, which looks like success and is not. This button rereads the folder. It does not fetch. -->
+            <button class="btn-primary" type="button" id="refresh">
+              Refresh from folder
+            </button>
+          </div>
+          <p class="slate" id="refresh-result"></p>
+        </section>
+
+        <p id="staleness" class="caveat"></p>
+        <p id="parcel-match" class="slate"></p>
+
+        <form id="filters" class="filter-row">
+          <label>
+            County
+            <select id="county"></select>
+          </label>
+          <label>
+            City
+            <select id="city"></select>
+          </label>
+          <label>
+            Conveyance
+            <select id="conveyance"></select>
+          </label>
+          <label>
+            Recorded date from
+            <input id="recorded-from" type="date" />
+          </label>
+          <label>
+            Recorded date to
+            <input id="recorded-to" type="date" />
+          </label>
+          <label>
+            Last update date from
+            <input id="updated-from" type="date" />
+          </label>
+          <label>
+            Last update date to
+            <input id="updated-to" type="date" />
+          </label>
+          <label>
+            Company name contains
+            <input id="name-contains" type="text" />
+          </label>
+          <div class="card-actions">
+            <button class="btn-primary" type="submit">Apply filters</button>
+            <button class="btn-secondary" type="button" id="export">
+              Export filtered set
+            </button>
+          </div>
+        </form>
+
+        <p id="active-filters" class="slate"></p>
+        <p id="counts" class="slate"></p>
+        <p id="page-controls" class="slate"></p>
+        <p id="empty-result" class="slate"></p>
+        <div class="card table-wrap">
+          <table id="assignments">
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>City</th>
+                <th>County</th>
+                <th>Address 1</th>
+                <th>Address 2</th>
+                <th>Postcode</th>
+                <th>Conveyance</th>
+                <th>Recorded date</th>
+                <th>Last update date</th>
+                <th>Reel</th>
+                <th>Frame</th>
+                <th>Patents</th>
+                <th>Assignors</th>
+                <th>Filing attorney (correspondent, not the business)</th>
+                <th>Parcels</th>
+                <th>Outcome</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <section id="detail-panel" class="card card-lg" hidden>
+          <h2 id="detail-heading">Assignment</h2>
+          <p class="slate" id="detail-meta"></p>
+          <p class="slate" id="detail-attorney"></p>
+          <h2>Assignees on this reel and frame</h2>
+          <div class="table-wrap">
+            <table id="detail-assignees">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>City</th>
+                  <th>County</th>
+                  <th>Address 1</th>
+                  <th>Address 2</th>
+                  <th>Postcode</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <h2>Assignors</h2>
+          <div class="table-wrap">
+            <table id="detail-assignors">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Execution date</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <h2>Patents</h2>
+          <div class="table-wrap">
+            <table id="detail-properties">
+              <thead>
+                <tr>
+                  <th>Country</th>
+                  <th>Doc number</th>
+                  <th>Kind</th>
+                  <th>Invention title</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+        <section id="outcome-panel" class="card card-lg" hidden>
+          <h2 id="outcome-heading">Outcomes</h2>
+          <p class="slate" id="outcome-subject"></p>
+          <div class="table-wrap">
+            <table id="outcome-history">
+              <thead>
+                <tr>
+                  <th>Action</th>
+                  <th>Date</th>
+                  <th>Reason</th>
+                  <th>Config fingerprint</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <form id="outcome-form" class="filter-row">
+            <label>
+              Action
+              <select id="outcome-action"></select>
+            </label>
+            <label>
+              Occurred on
+              <input id="outcome-date" type="date" />
+            </label>
+            <label>
+              Reason
+              <input id="outcome-reason" type="text" />
+            </label>
+            <div class="card-actions">
+              <button class="btn-primary" type="submit">Record outcome</button>
+            </div>
+          </form>
+          <p id="outcome-error" class="error"></p>
+        </section>
+        </div>
+        <p id="error" class="error"></p>
+      </main>
+    </div>
+    <script src="nav.js"></script>
+    <script src="outcomes.js"></script>
+    <script src="assignments.js"></script>
+  </body>
+</html>

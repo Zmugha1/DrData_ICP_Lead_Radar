@@ -1,0 +1,25 @@
+schema_version = "1.0.0"
+config_version = "0.1.0"
+vertical_id = "milwaukee_parcels"
+vertical_display_name = "Milwaukee County parcels"
+county_fips = "55079"
+county_name = "Milwaukee"
+entity_universe = "Parcels"
+
+[[pages]]
+key = "status"
+
+[[pages]]
+key = "owner_groups"
+
+[[pages]]
+key = "assignments"
+
+[[pages]]
+key = "coverage"
+
+[[pages]]
+key = "sources"
+
+[[pages]]
+key = "how_to_use"

@@ -1,0 +1,59 @@
+[[geographies]]
+key = "waukesha_county"
+level = "Full"
+note = "Parcel and municipality layers loaded."
+
+[[geographies]]
+key = "milwaukee_county"
+level = "None"
+note = "A discovery day plus its own gaps."
+
+[[geographies]]
+key = "washington_county"
+level = "None"
+note = "A discovery day plus its own gaps."
+
+[[geographies]]
+key = "ozaukee_county"
+level = "None"
+note = "A discovery day plus its own gaps."
+
+[[attributes]]
+key = "owner_name"
+level = "Partial"
+note = "Businesses are identified by normalised owner name taken from the deed. This is not a stable key. Legal owner names on deeds do not match trading names, website domains or job postings. In the first vertical a client's own trading-name labels matched zero of 628 rows against deed owner names."
+
+[[attributes]]
+key = "improvement_value"
+level = "Full"
+note = "Complete on all rows. A value of zero is a proxy for vacant and not a vacant flag published by the county."
+
+[[attributes]]
+key = "building_detail"
+level = "Partial"
+note = "Building detail exists for City of Waukesha only, 39,073 records carrying year built and living area. Ten other municipalities have records requests drafted and not returned. This attribute is deliberately not imported into this application. The schema excludes it. Partial here describes what exists in the world, not what this system holds."
+
+[[attributes]]
+key = "property_class"
+level = "Partial"
+note = "PROPCLASS is a multi-value comma-separated field with 204 distinct values, not a sparse single code. Filtering on an exact match of 1 drops mixed-use parcels that are partly residential. Seven municipalities do not populate the field on the live layer and are read from the previous year-end roll instead."
+
+[[attributes]]
+key = "historic_year_end_vintage"
+level = "Partial"
+note = "Rows sourced from the historic layer carry Export_Date 2026-01-30 and tax roll year 2025, so a third of the roll is current to January rather than to the live fetch date."
+
+[[attributes]]
+key = "trigger_signals"
+level = "None"
+note = "No trigger source is wired."
+
+[[geographies]]
+key = "milc"
+level = "None"
+note = "MILC is uncovered. Three live rows. Zero classed rows on the live layer and on Historic_Parcels previous year-end. Count 3."
+
+[[publication_lags]]
+source_id = "src-waukesha-parcels"
+lag_days = 0
+measured = false

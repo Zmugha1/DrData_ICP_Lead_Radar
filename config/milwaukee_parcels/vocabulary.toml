@@ -1,0 +1,59 @@
+classifier_positive = [
+    "estimator",
+    "senior estimator",
+    "preconstruction",
+    "takeoff specialist",
+    "bid coordinator",
+    "project estimator",
+    "cost analyst",
+    "second generation",
+    "third generation",
+    "family owned since",
+    "founded in 19",
+    "guaranteed pricing",
+    "fixed price",
+    "price guarantee",
+    "made to order",
+    "custom fabrication",
+    "no two the same",
+    "job shop",
+    "quote from drawings",
+    "IICRC",
+    "ISO certified",
+    "board of directors",
+    "past president",
+    "HIPAA",
+    "fiduciary",
+    "independent RIA",
+]
+# Last five terms come from a real conversation. The pattern is
+# agreement without authority: enthusiasm from someone who cannot
+# sign. "there is a gap" counts only when it is unaccompanied by a
+# number, which is a judgment a term match cannot make, so the term
+# flags for review rather than deciding anything.
+classifier_negative = [
+    "we already have a tool for that",
+    "I built my own",
+    "we want AI",
+    "pure catalog",
+    "our corporate",
+    "our national office",
+    "streamline our processes",
+    "we can see how",
+    "there is a gap",
+]
+outreach_lead = [
+    "a decision where being wrong costs money",
+    "priced against your own history",
+    "Waukesha County",
+    "bids quotes or estimates for a living",
+]
+outreach_avoid = [
+    "AI",
+    "artificial intelligence",
+    "private",
+    "local-first",
+    "on-premise",
+    "Tauri",
+    "Ollama",
+]

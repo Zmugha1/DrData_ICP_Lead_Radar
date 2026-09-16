@@ -1,0 +1,64 @@
+spine_source_id = "src-waukesha-parcels"
+county_fips = "55133"
+natural_key_field = "taxkey"
+has_stable_key = true
+# Waukesha taxkeys are unique after the placeholder skip. Stacked
+# geometry collapse stays off.
+collapse_duplicate_geometry = false
+# The observed distribution separates cleanly. Genuine fallbacks sit at 0.000.
+# Covered municipalities sit above 0.67, the lowest observed being BBV at
+# 589 of 876 (0.672). EGLT live classed is 1,493 of 1,921 (0.777);
+# 1,362 of 1,921 was load_run 1's written count, not the live classed count.
+# Menomonee Falls sits at 0.002 and was wrongly treated as covered by a
+# zero test. The threshold sits in an empty band between 0.002 and 0.672
+# and is not a fitted value.
+spine_coverage_fallback_threshold = 0.50
+
+[lookup_source]
+kind = "Layer"
+url = "https://gis.waukeshacounty.gov/host/rest/services/Basemap_Reference_Service/FeatureServer/0"
+where_clause = "1=1"
+code_field = "MUNICODE"
+name_field = "MUNINAME"
+
+[[layers]]
+role = "Primary"
+url = "https://gis.waukeshacounty.gov/host/rest/services/Web_Tax_Parcel/FeatureServer/2"
+where_clause = "1=1"
+vintage_field = "Export_Date"
+
+[layers.field_map]
+taxkey = "TAXKEY"
+muni_code = "MUNI"
+owner_name = "OWNERNAMEFULL"
+site_address = "SITEADRESS"
+mail_address_1 = "PSTLADRESSLINE1"
+mail_address_2 = "PSTLADRESSLINE2"
+assessed_value = "CNTASSDVALUE"
+improvement_value = "IMPVALUE"
+land_value = "LNDVALUE"
+prop_class = "PROPCLASS"
+
+[[layers]]
+role = "Fallback"
+url = "https://gis.waukeshacounty.gov/host/rest/services/Historic_Parcels/FeatureServer/1"
+where_clause = "1=1"
+vintage_field = "Export_Date"
+
+[layers.field_map]
+taxkey = "TAXKEY"
+muni_code = "MUNI"
+owner_name = "OWNERNAMEFULL"
+site_address = "SITEADRESS"
+mail_address_1 = "PSTLADRESSLINE1"
+mail_address_2 = "PSTLADRESSLINE2"
+assessed_value = "CNTASSDVALUE"
+improvement_value = "IMPVALUE"
+land_value = "LNDVALUE"
+prop_class = "PROPCLASS"
+
+[[attachments]]
+source_id = "src-waukesha-muni-lookup"
+join_field = "muni_code"
+join_method = "ExactKey"
+expected_match_rate = 1.0

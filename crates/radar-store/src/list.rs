@@ -391,8 +391,11 @@ pub fn list_owner_groups(
         let ph = alloc_placeholder(&mut param_i);
         filters.push(format!(
             "EXISTS (
-                 SELECT 1 FROM valid v
-                 WHERE v.group_key = g.group_key AND v.muni_code = {ph}
+                 SELECT 1 FROM current_parcels c
+                 JOIN mapped m ON m.owner_name = c.owner_name
+                 WHERE m.group_key = g.group_key
+                   AND c.muni_code = {ph}
+                   AND c.county_fips = {county_ph}
              )"
         ));
         binds.push(rusqlite::types::Value::Text(muni.to_string()));
@@ -449,44 +452,44 @@ pub fn list_owner_groups(
     binds.push(rusqlite::types::Value::Integer(offset));
 
     let sql = format!(
-        "WITH parcels AS MATERIALIZED (
-            SELECT owner_name, muni_code, improvement_value, value_as_of
+        "WITH names AS MATERIALIZED (
+            SELECT
+                owner_name,
+                COUNT(*) AS n,
+                SUM(CASE WHEN improvement_value IS NOT NULL THEN 1 ELSE 0 END) AS improvement_observed,
+                SUM(CASE WHEN improvement_value = 0 THEN 1 ELSE 0 END) AS zero_count,
+                MIN(value_as_of) AS value_as_of_min,
+                MAX(value_as_of) AS value_as_of_max
             FROM current_parcels
             WHERE county_fips = {county_ph}
               AND owner_name IS NOT NULL
+            GROUP BY owner_name
         ),
-        name_map AS MATERIALIZED (
+        mapped AS MATERIALIZED (
             SELECT
                 owner_name,
+                n,
+                improvement_observed,
+                zero_count,
+                value_as_of_min,
+                value_as_of_max,
                 normalise_owner_name(owner_name) AS group_key,
                 classify_owner_type(owner_name) AS owner_type
-            FROM (SELECT DISTINCT owner_name FROM parcels)
-        ),
-        valid AS MATERIALIZED (
-            SELECT
-                p.owner_name,
-                m.group_key,
-                m.owner_type,
-                p.muni_code,
-                p.improvement_value,
-                p.value_as_of
-            FROM parcels p
-            JOIN name_map m ON m.owner_name = p.owner_name
-            WHERE m.group_key != ''
+            FROM names
+            WHERE normalise_owner_name(owner_name) != ''
         ),
         agg AS MATERIALIZED (
             SELECT
                 group_key,
-                COUNT(*) AS total_parcels,
-                SUM(CASE WHEN improvement_value IS NOT NULL THEN 1 ELSE 0 END) AS improvement_observed,
-                SUM(CASE WHEN improvement_value = 0 THEN 1 ELSE 0 END) AS zero_count,
-                COUNT(DISTINCT muni_code) AS municipality_count,
-                COUNT(DISTINCT owner_name) AS member_name_count,
+                SUM(n) AS total_parcels,
+                SUM(improvement_observed) AS improvement_observed,
+                SUM(zero_count) AS zero_count,
+                COUNT(*) AS member_name_count,
                 COUNT(DISTINCT owner_type) AS owner_type_n,
                 MIN(owner_type) AS owner_type_min,
-                MIN(value_as_of) AS value_as_of_min,
-                MAX(value_as_of) AS value_as_of_max
-            FROM valid
+                MIN(value_as_of_min) AS value_as_of_min,
+                MAX(value_as_of_max) AS value_as_of_max
+            FROM mapped
             GROUP BY group_key
         ),
         grouped AS (
@@ -495,7 +498,6 @@ pub fn list_owner_groups(
                 scored.member_name_count,
                 scored.total_parcels,
                 scored.improvement_value_zero_count,
-                scored.municipality_count,
                 scored.mixed_owner_type,
                 scored.owner_type,
                 scored.value_as_of_min,
@@ -512,7 +514,6 @@ pub fn list_owner_groups(
                     a.total_parcels,
                     CASE WHEN a.improvement_observed = 0 THEN NULL ELSE a.zero_count END
                         AS improvement_value_zero_count,
-                    a.municipality_count,
                     CASE WHEN a.owner_type_n > 1 THEN 1 ELSE 0 END AS mixed_owner_type,
                     CASE WHEN a.owner_type_n > 1 THEN NULL ELSE a.owner_type_min END AS owner_type,
                     a.value_as_of_min,
@@ -531,17 +532,24 @@ pub fn list_owner_groups(
             SELECT group_key, owner_name AS display_name
             FROM (
                 SELECT
-                    v.group_key,
-                    v.owner_name,
+                    m.group_key,
+                    m.owner_name,
                     ROW_NUMBER() OVER (
-                        PARTITION BY v.group_key
-                        ORDER BY COUNT(*) DESC, v.owner_name ASC
+                        PARTITION BY m.group_key
+                        ORDER BY m.n DESC, m.owner_name ASC
                     ) AS rn
-                FROM valid v
-                INNER JOIN page p ON p.group_key = v.group_key
-                GROUP BY v.group_key, v.owner_name
+                FROM mapped m
+                INNER JOIN page p ON p.group_key = m.group_key
             ) ranked
             WHERE rn = 1
+        ),
+        munis AS (
+            SELECT m.group_key, COUNT(DISTINCT c.muni_code) AS municipality_count
+            FROM current_parcels c
+            JOIN mapped m ON m.owner_name = c.owner_name
+            JOIN page p ON p.group_key = m.group_key
+            WHERE c.county_fips = {county_ph}
+            GROUP BY m.group_key
         )
         SELECT
             (SELECT COUNT(*) FROM grouped) AS total_before_filter,
@@ -551,7 +559,7 @@ pub fn list_owner_groups(
             page.member_name_count,
             page.total_parcels,
             page.improvement_value_zero_count,
-            page.municipality_count,
+            munis.municipality_count,
             page.mixed_owner_type,
             page.owner_type,
             page.value_as_of_min,
@@ -562,7 +570,8 @@ pub fn list_owner_groups(
             page.band_value
         FROM (SELECT 1 AS _pad) AS pad
         LEFT JOIN page ON 1 = 1
-        LEFT JOIN display ON display.group_key = page.group_key",
+        LEFT JOIN display ON display.group_key = page.group_key
+        LEFT JOIN munis ON munis.group_key = page.group_key",
         kind = band.kind,
         label = band.label,
         favourability = band.favourability,
@@ -655,6 +664,22 @@ pub fn explain_owner_group_list_plan(
         &[&county_fips],
     )? {
         plan.push(format!("county_scan {line}"));
+    }
+    for line in explain_sql_plan(
+        conn,
+        "SELECT owner_name,
+                COUNT(*) AS n,
+                SUM(CASE WHEN improvement_value IS NOT NULL THEN 1 ELSE 0 END),
+                SUM(CASE WHEN improvement_value = 0 THEN 1 ELSE 0 END),
+                MIN(value_as_of),
+                MAX(value_as_of)
+         FROM current_parcels
+         WHERE county_fips = ?1
+           AND owner_name IS NOT NULL
+         GROUP BY owner_name",
+        &[&county_fips],
+    )? {
+        plan.push(format!("name_group {line}"));
     }
     for line in explain_sql_plan(
         conn,
@@ -1670,6 +1695,9 @@ mod tests {
             Err(err) => println!("MEASURE plan before_index error {err}"),
         }
         migrate(&mut conn).expect("migrate live store");
+        let all_parcels: i64 = conn
+            .query_row("SELECT COUNT(*) FROM current_parcels", [], |row| row.get(0))
+            .expect("all parcel count");
         let parcels: i64 = conn
             .query_row(
                 "SELECT COUNT(*) FROM current_parcels WHERE county_fips = ?1",
@@ -1677,7 +1705,17 @@ mod tests {
                 |row| row.get(0),
             )
             .expect("parcel count");
-        println!("MEASURE current_parcels county rows={parcels}");
+        let named: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM current_parcels WHERE county_fips = ?1 AND owner_name IS NOT NULL",
+                [county],
+                |row| row.get(0),
+            )
+            .expect("named count");
+        println!("MEASURE current_parcels all_rows={all_parcels} county_rows={parcels} named_county_rows={named}");
+        println!(
+            "MEASURE list_owner_groups path=SQL GROUP BY owner_name on current_parcels covering index, then UDF map, then GROUP BY group_key, LIMIT 100. Rust materialises only the page rows."
+        );
         match super::explain_owner_group_list_plan(&config, &conn) {
             Ok(plan) => {
                 for line in plan {
@@ -1703,7 +1741,7 @@ mod tests {
             let started = Instant::now();
             let page = list_owner_groups(&config, &conn, &query).expect("list");
             println!(
-                "MEASURE list_owner_groups run={run} wall_ms={} rows={} total_before_filter={} total_after_filter={}",
+                "MEASURE list_owner_groups run={run} wall_ms={} rust_rows={} total_before_filter={} total_after_filter={}",
                 started.elapsed().as_millis(),
                 page.rows.len(),
                 page.total_before_filter,

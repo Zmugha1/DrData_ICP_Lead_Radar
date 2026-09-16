@@ -56,3 +56,15 @@ path = "src/bin/record_outcome.rs"
 [[bin]]
 name = "load_milwaukee_liquor"
 path = "src/bin/load_milwaukee_liquor.rs"
+
+[[bin]]
+name = "load_lira_applications"
+path = "src/bin/load_lira_applications.rs"
+
+[[bin]]
+name = "fetch_lira_pdfs"
+path = "src/bin/fetch_lira_pdfs.rs"
+
+[[bin]]
+name = "extract_lira_pdfs"
+path = "src/bin/extract_lira_pdfs.rs"
