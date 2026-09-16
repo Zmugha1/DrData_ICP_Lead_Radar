@@ -1,7 +1,5 @@
 REPO: C:\Users\zumah\DrData_ICP_Lead_radar
 
-Confirm working directory. Do not commit or push yet.
-
 VERIFY FIRST, before writing anything
 
 List every file in crates/radar-store/migrations/. Confirm whether
