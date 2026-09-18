@@ -1,27 +1,16 @@
-
-
-```markdown
 # Lead Radar
 
-Local-first ICP search and lead intelligence system for Dr. Data
-Decision Intelligence LLC. Rust, Tauri desktop shell, SQLite. Reads
-public records, parcels, business license filings, occupancy
-filings, patent assignments, liquor licenses, and produces ranked,
-sourced prospect lists per client vertical.
+Local-first ICP search and lead intelligence system for Dr. Data Decision Intelligence LLC. Rust, Tauri desktop shell, SQLite. Reads public records, parcels, business license filings, occupancy filings, patent assignments, liquor licenses, and produces ranked, sourced prospect lists per client vertical.
 
-No job title lives in this file. This is documentation, not a
-hiring document.
+No job title lives in this file. This is documentation, not a hiring document.
 
 ## Start here
 
 Read in this order before touching anything:
 
-1. `docs/adr/ADR-0001` — why config is loaded at runtime, not
-   compiled in
-2. `docs/adr/ADR-0008` — why current parcel state is materialized,
-   not derived live on every query
-3. `docs/adr/ADR-0010` — the privacy exclusion pattern, why it
-   exists, and why it is non-negotiable
+1. `docs/adr/ADR-0001` — why config is loaded at runtime, not compiled in
+2. `docs/adr/ADR-0008` — why current parcel state is materialized, not derived live on every query
+3. `docs/adr/ADR-0010` — the privacy exclusion pattern, why it exists, and why it is non-negotiable
 4. `crates/radar-store/src/parcels.rs`
 5. `crates/radar-store/src/groups.rs`
 6. the detection module
@@ -33,48 +22,25 @@ Then run the app once before changing anything.
 Four real pieces:
 
 - `crates/radar-config` — schema, validation, session state
-- `crates/radar-store` — migrations, data access, detection,
-  extraction, adapters
-- `apps/radar-desktop` — Tauri shell, plain HTML/JS/CSS, no
-  frontend framework
-- `config/<vertical>/` — one directory per client. Adding a
-  vertical is a new config directory, never a code change
+- `crates/radar-store` — migrations, data access, detection, extraction, adapters
+- `apps/radar-desktop` — Tauri shell, plain HTML/JS/CSS, no frontend framework
+- `config/<vertical>/` — one directory per client. Adding a vertical is a new config directory, never a code change
 
 ## Non-negotiable design rules
 
-**Insert-only, enforced at the database level.** A SQLite
-authorizer blocks UPDATE and DELETE on core tables, not just
-convention. As of the WAL migration, the database runs in WAL mode
-with a busy_timeout set on every connection, app, loaders, and
-tests alike. This was a real bug: a rollback-journal connection
-with no timeout caused live lock contention between the running
-app and a concurrent adapter fetch.
+**Insert-only, enforced at the database level.** A SQLite authorizer blocks UPDATE and DELETE on core tables, not just convention. The database runs in WAL mode with a busy_timeout set on every connection, app, loaders, and tests alike. This was a real bug: a rollback-journal connection with no timeout caused live lock contention between the running app and a concurrent adapter fetch.
 
-**A missing value is never a guess.** Null, not-applicable, and
-unreadable are three different facts and must render differently
-everywhere. A blank phone field on an Accela occupancy record does
-not mean extraction failed. It can mean the only phone on the form
-was labeled Home and was correctly excluded.
+**A missing value is never a guess.** Null, not-applicable, and unreadable are three different facts and must render differently everywhere. A blank phone field on an Accela occupancy record does not mean extraction failed. It can mean the only phone on the form was labeled Home and was correctly excluded.
 
-**Config drives behavior.** Direction, weights, bands, vocabulary
-live in TOML. A hardcoded threshold in Rust is a bug being written.
+**Config drives behavior.** Direction, weights, bands, vocabulary live in TOML. A hardcoded threshold in Rust is a bug being written.
 
-**ADR before a non-trivial architecture change. Profile a source
-with real requests before writing an adapter for it.** Every source
-in this repo was profiled first, and every profile found something
-the documentation did not say: LIRA's CSV export uses different
-column names than the search-results grid. Accela's export contains
-only six grid columns, none of the rich fields, which live only on
-a per-record detail page reached by a session-scoped capID. Do not
-assume a field exists or a site behaves as documented.
+**ADR before a non-trivial architecture change. Profile a source with real requests before writing an adapter for it.** Every source in this repo was profiled first, and every profile found something the documentation did not say: LIRA's CSV export uses different column names than the search-results grid. Accela's export contains only six grid columns, none of the rich fields, which live only on a per-record detail page reached by a session-scoped capID. Do not assume a field exists or a site behaves as documented.
 
-**A materialized table exists only if it can be fully rebuilt from
-source-of-truth tables.** Never a second source of truth.
+**A materialized table exists only if it can be fully rebuilt from source-of-truth tables.** Never a second source of truth.
 
 ## The multi-vertical model
 
-Composite key is `(county_fips, muni_code, taxkey)`, never taxkey
-alone. Waukesha and Milwaukee taxkeys can collide.
+Composite key is `(county_fips, muni_code, taxkey)`, never taxkey alone. Waukesha and Milwaukee taxkeys can collide.
 
 ## Data sources currently wired
 
@@ -91,84 +57,16 @@ alone. Waukesha and Milwaukee taxkeys can collide.
 
 ## What is NOT automated, and why
 
-`itmdapps.milwaukee.gov` disallows all agents except Googlebot in
-robots.txt. This governs both the LIRA CSV export and the scanned
-PDF attachment pulls. Both require a human to manually retrieve
-files into a folder; the loaders only read what is already there.
+`itmdapps.milwaukee.gov` disallows all agents except Googlebot in robots.txt. This governs both the LIRA CSV export and the scanned PDF attachment pulls. Both require a human to manually retrieve files into a folder; the loaders only read what is already there.
 
-Accela's occupancy portal (`aca-prod.accela.com`) has no robots.txt
-at all. That source is retrieved by a session-based search plus a
-per-record GET, rate-limited, but not blocked by site policy the way
-LIRA is. The two hosts are treated differently for a reason. Do not
-assume the same restriction applies to both.
+Accela's occupancy portal (`aca-prod.accela.com`) has no robots.txt at all. That source is retrieved by a session-based search plus a per-record GET, rate-limited, but not blocked by site policy the way LIRA is. The two hosts are treated differently for a reason. Do not assume the same restriction applies to both.
 
 ## Running locally
 
-Required environment variables, never committed, never logged, read
-from the process environment only:
+Required environment variables, never committed, never logged, read from the process environment only:
 
 - `ANTHROPIC_API_KEY`
 - `FRED_API_KEY`
 
 Run the app:
 
-```
-cd apps/radar-desktop/src-tauri
-cargo run
-```
-
-Run tests:
-
-```
-cargo test
-```
-
-If a workspace-wide `cargo test` produces a file-lock error
-(`LNK1104` on Windows, or a SQLite `database is locked` error on a
-test touching `data/radar.db` directly), confirm no other cargo
-process or the running Tauri app is holding a connection. Since the
-WAL and busy_timeout fix, this should no longer occur under normal
-concurrent use. If it recurs, that is a regression worth
-investigating properly, not silencing with a retry.
-
-`data/radar.db` is gitignored. A fresh clone starts with an empty
-database. Every source needs to be fetched or loaded from scratch.
-
-## Privacy boundary, stated as a hard rule
-
-Vision extraction and every scraped or fetched detail page never
-extracts date of birth, driver's license number, social security
-number, or any personal phone or home address, even when clearly
-visible on the form. See `ADR-0010`.
-
-This line does not move, and it has already caught real bugs. On
-the Accela occupancy adapter, a first implementation stored a
-number labeled Home Phone under a different column name rather than
-excluding it. That was found and fixed by checking every stored
-record against its live source page, not by trusting the exclusion
-logic on the one example already known. A form field can carry the
-same number under three different labels, Home, Work, and Mobile,
-at once. Only the correctly labeled business-facing ones are ever
-stored.
-
-## Known open items
-
-- The migration numbering has a gap at 018. Confirm whether this is
-  intentional before assuming a clean sequential range anywhere.
-- ADR-0005 and ADR-0006 share the same title. Check both before
-  assuming which is current.
-- Ranking currently uses two attributes.
-- No config exists yet for any vertical beyond the two counties
-  checked in. Kevin Redlich's MSP use case has been worked through
-  ad hoc in chat, not built into the config layer, and is a
-  reasonable first candidate for turning into a real vertical
-  config.
-- `exports/dr_data_icp_ranked.csv` is a point-in-time snapshot, not
-  regenerated automatically.
-- Accela occupancy records include a `TMP` category, an earlier or
-  unfinalized stage of the same filing pipeline, distinct from a
-  full `NOCC` record. Treat these as a separate, softer signal.
-  Do not merge them into a client-facing count without saying so.
-```
-
-Copy this into `README.md` at the repo root and push it. If the migration 018 gap or the ADR-0005/0006 title collision were ever confirmed one way or the other since the last check, tell me and I'll adjust those two lines before you commit.
