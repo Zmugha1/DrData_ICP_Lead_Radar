@@ -1,108 +1,174 @@
-REPO: C:\Users\zumah\DrData_ICP_Lead_radar
+Given the depth this build reached since the last README pass, here's a version that reflects where things actually stand: two live occupancy and license sources beyond parcels, the SQLite lock fix, the privacy exclusion pattern proven across three separate sources now.
 
-VERIFY FIRST, before writing anything
+```markdown
+# Lead Radar
 
-List every file in crates/radar-store/migrations/. Confirm whether
-018 genuinely does not exist, or was renamed/removed. State plainly
-whether it's a gap or an artifact.
+Local-first ICP search and lead intelligence system for Dr. Data
+Decision Intelligence LLC. Rust, Tauri desktop shell, SQLite. Reads
+public records, parcels, business license filings, occupancy
+filings, patent assignments, liquor licenses, and produces ranked,
+sourced prospect lists per client vertical.
 
-List every file in docs/adr/. Print each filename and its title
-line. Confirm whether ADR-0005 and ADR-0006 do in fact share the
-same title, and if so, note this in the README as a known small
-inconsistency rather than hiding it.
+No job title lives in this file. This is documentation, not a
+hiring document.
 
-List every binary under crates/radar-store/src/bin/.
+## Start here
 
-Run cargo test with an isolated CARGO_TARGET_DIR and report pass or
-fail plainly. Do not guess if you have not actually run it this
-session.
+Read in this order before touching anything:
 
-WRITE README.md AT REPO ROOT
+1. `docs/adr/ADR-0001` — why config is loaded at runtime, not
+   compiled in
+2. `docs/adr/ADR-0008` — why current parcel state is materialized,
+   not derived live on every query
+3. `docs/adr/ADR-0010` — the privacy exclusion pattern, why it
+   exists, and why it is non-negotiable
+4. `crates/radar-store/src/parcels.rs`
+5. `crates/radar-store/src/groups.rs`
+6. the detection module
 
-Audience: an engineer new to this codebase. No job title anywhere
-in the file, this is documentation, not a hiring document.
+Then run the app once before changing anything.
 
-Sections, in this order:
+## Architecture
 
-1. One paragraph: what this is. Local-first ICP search and lead
-   intelligence system for Dr. Data Decision Intelligence LLC. Rust,
-   Tauri desktop shell, SQLite. Reads public records (parcels,
-   business license filings, patent assignments, liquor licenses)
-   and produces ranked, sourced prospect lists per client vertical.
+Four real pieces:
 
-2. "Start here." A suggested reading order for someone new:
-   ADR-0001 first (why config is runtime, not compiled in), then
-   ADR-0008 (why current state is materialized, not derived live),
-   then parcels.rs, then groups.rs, then the detection module. Then
-   run the app once before touching anything.
+- `crates/radar-config` — schema, validation, session state
+- `crates/radar-store` — migrations, data access, detection,
+  extraction, adapters
+- `apps/radar-desktop` — Tauri shell, plain HTML/JS/CSS, no
+  frontend framework
+- `config/<vertical>/` — one directory per client. Adding a
+  vertical is a new config directory, never a code change
 
-3. Architecture. The four real pieces: crates/radar-config (schema,
-   validation, session state), crates/radar-store (migrations, data
-   access, detection, extraction), apps/radar-desktop (Tauri shell,
-   plain HTML/JS/CSS, no framework), config/<vertical>/ (one
-   directory per client, TOML files, no code changes needed to add
-   a vertical).
+## Non-negotiable design rules
 
-4. Non-negotiable design rules, stated plainly, each with why:
-   - Insert-only, enforced at the database level by a SQLite
-     authorizer, not just by convention.
-   - A missing value is never a guess. Null, not-applicable, and
-     unreadable are three different facts and must render
-     differently everywhere.
-   - Config drives behavior. Direction, weights, bands, vocabulary
-     all live in TOML. A hardcoded threshold in Rust is a bug being
-     written.
-   - Write an ADR before a non-trivial architecture change. Profile
-     a data source with real requests before writing an adapter for
-     it, never assume a field exists or a site behaves as documented.
-   - A materialized table exists only if it can be fully rebuilt
-     from the source-of-truth tables. Never a second source of
-     truth.
+**Insert-only, enforced at the database level.** A SQLite
+authorizer blocks UPDATE and DELETE on core tables, not just
+convention. As of the WAL migration, the database runs in WAL mode
+with a busy_timeout set on every connection, app, loaders, and
+tests alike. This was a real bug: a rollback-journal connection
+with no timeout caused live lock contention between the running
+app and a concurrent adapter fetch.
 
-5. The multi-vertical model. Composite key is (county_fips,
-   muni_code, taxkey), not taxkey alone. Explain briefly: Waukesha
-   and Milwaukee taxkeys can collide, and adding a county or vertical
-   is a new config directory, never new Rust.
+**A missing value is never a guess.** Null, not-applicable, and
+unreadable are three different facts and must render differently
+everywhere. A blank phone field on an Accela occupancy record does
+not mean extraction failed. It can mean the only phone on the form
+was labeled Home and was correctly excluded.
 
-6. Data sources currently wired. A short table: source, what it
-   provides, how it's retrieved, automation status. Include parcels
-   (Waukesha and Milwaukee, different field shapes per county),
-   USPTO patent assignments, Milwaukee liquor licenses (nightly
-   snapshot diffing), LIRA license applications, FRED economic
-   series, PDF vision extraction.
+**Config drives behavior.** Direction, weights, bands, vocabulary
+live in TOML. A hardcoded threshold in Rust is a bug being written.
 
-7. What is NOT automated, and why. itmdapps.milwaukee.gov disallows
-   all agents except Googlebot in robots.txt. This governs both the
-   LIRA CSV export and the PDF attachment pulls. Both require a
-   human to manually retrieve files into a folder; the loaders only
-   read what's already there. State this plainly so nobody tries to
-   build a crawler against that host later.
+**ADR before a non-trivial architecture change. Profile a source
+with real requests before writing an adapter for it.** Every source
+in this repo was profiled first, and every profile found something
+the documentation did not say: LIRA's CSV export uses different
+column names than the search-results grid. Accela's export contains
+only six grid columns, none of the rich fields, which live only on
+a per-record detail page reached by a session-scoped capID. Do not
+assume a field exists or a site behaves as documented.
 
-8. Running locally. Required environment variables
-   (ANTHROPIC_API_KEY, FRED_API_KEY), never committed, never logged,
-   read from the process environment only. How to run the app. How
-   to run tests, and the actual current pass/fail state you just
-   verified. Note that data/radar.db is gitignored, so a fresh clone
-   starts with an empty database and every source needs to be
-   fetched or loaded from scratch.
+**A materialized table exists only if it can be fully rebuilt from
+source-of-truth tables.** Never a second source of truth.
 
-9. Binaries reference. A table of every binary you found in
-   src/bin/, one line each on what it does.
+## The multi-vertical model
 
-10. Privacy boundary, stated as a hard rule, not a guideline. Vision
-    extraction from scanned government documents never extracts
-    date of birth, driver's license number, social security number,
-    or any personal phone or home address, even when clearly visible
-    on the form. Reference ADR-0010. This line does not move.
+Composite key is `(county_fips, muni_code, taxkey)`, never taxkey
+alone. Waukesha and Milwaukee taxkeys can collide.
 
-11. Known open items. List plainly: the migration 018 gap (as
-    confirmed), the ADR-0005/0006 title duplication (if confirmed),
-    that ranking currently uses two attributes, that a config for
-    any vertical beyond the two currently checked in does not exist
-    yet, and that exports/dr_data_icp_ranked.csv is a point-in-time
-    snapshot, not something regenerated automatically.
+## Data sources currently wired
 
-No em dashes anywhere in the file.
+| Source | Provides | Retrieval | Status |
+|---|---|---|---|
+| Waukesha parcels | Ownership, assessed value | Adapter, live fetch | Live |
+| Milwaukee parcels | Ownership, different field shape than Waukesha | Adapter, live fetch | Live |
+| USPTO patent assignments | Business addresses, separated from filing attorney | Adapter | Live |
+| Milwaukee liquor licenses | New, ended, changed licensees | Nightly snapshot diff | Live |
+| LIRA license applications | New restaurant filings | Manual CSV export, then adapter reads the file | Live |
+| Milwaukee Accela occupancy | New business establishment filings, with reason code and applicant | Two-stage session pull: search for capIDs, then a GET per detail page | Live |
+| FRED economic series | Mortgage rates, housing starts, ten series | Adapter, API key required | Live |
+| PDF vision extraction | Structured fields from scanned license applications | Manual URL list, then Claude vision call per document | Live, small batch validated |
 
-Print the full README.md content after writing it. Do not commit.
-Stop after writing and printing it so it can be reviewed.
+## What is NOT automated, and why
+
+`itmdapps.milwaukee.gov` disallows all agents except Googlebot in
+robots.txt. This governs both the LIRA CSV export and the scanned
+PDF attachment pulls. Both require a human to manually retrieve
+files into a folder; the loaders only read what is already there.
+
+Accela's occupancy portal (`aca-prod.accela.com`) has no robots.txt
+at all. That source is retrieved by a session-based search plus a
+per-record GET, rate-limited, but not blocked by site policy the way
+LIRA is. The two hosts are treated differently for a reason. Do not
+assume the same restriction applies to both.
+
+## Running locally
+
+Required environment variables, never committed, never logged, read
+from the process environment only:
+
+- `ANTHROPIC_API_KEY`
+- `FRED_API_KEY`
+
+Run the app:
+
+```
+cd apps/radar-desktop/src-tauri
+cargo run
+```
+
+Run tests:
+
+```
+cargo test
+```
+
+If a workspace-wide `cargo test` produces a file-lock error
+(`LNK1104` on Windows, or a SQLite `database is locked` error on a
+test touching `data/radar.db` directly), confirm no other cargo
+process or the running Tauri app is holding a connection. Since the
+WAL and busy_timeout fix, this should no longer occur under normal
+concurrent use. If it recurs, that is a regression worth
+investigating properly, not silencing with a retry.
+
+`data/radar.db` is gitignored. A fresh clone starts with an empty
+database. Every source needs to be fetched or loaded from scratch.
+
+## Privacy boundary, stated as a hard rule
+
+Vision extraction and every scraped or fetched detail page never
+extracts date of birth, driver's license number, social security
+number, or any personal phone or home address, even when clearly
+visible on the form. See `ADR-0010`.
+
+This line does not move, and it has already caught real bugs. On
+the Accela occupancy adapter, a first implementation stored a
+number labeled Home Phone under a different column name rather than
+excluding it. That was found and fixed by checking every stored
+record against its live source page, not by trusting the exclusion
+logic on the one example already known. A form field can carry the
+same number under three different labels, Home, Work, and Mobile,
+at once. Only the correctly labeled business-facing ones are ever
+stored.
+
+## Known open items
+
+- The migration numbering has a gap at 018. Confirm whether this is
+  intentional before assuming a clean sequential range anywhere.
+- ADR-0005 and ADR-0006 share the same title. Check both before
+  assuming which is current.
+- Ranking currently uses two attributes.
+- No config exists yet for any vertical beyond the two counties
+  checked in. Kevin Redlich's MSP use case has been worked through
+  ad hoc in chat, not built into the config layer, and is a
+  reasonable first candidate for turning into a real vertical
+  config.
+- `exports/dr_data_icp_ranked.csv` is a point-in-time snapshot, not
+  regenerated automatically.
+- Accela occupancy records include a `TMP` category, an earlier or
+  unfinalized stage of the same filing pipeline, distinct from a
+  full `NOCC` record. Treat these as a separate, softer signal.
+  Do not merge them into a client-facing count without saying so.
+```
+
+Copy this into `README.md` at the repo root and push it. If the migration 018 gap or the ADR-0005/0006 title collision were ever confirmed one way or the other since the last check, tell me and I'll adjust those two lines before you commit.
