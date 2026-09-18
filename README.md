@@ -1,4 +1,4 @@
-Given the depth this build reached since the last README pass, here's a version that reflects where things actually stand: two live occupancy and license sources beyond parcels, the SQLite lock fix, the privacy exclusion pattern proven across three separate sources now.
+
 
 ```markdown
 # Lead Radar
