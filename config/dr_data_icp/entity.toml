@@ -2,9 +2,11 @@ spine_source_id = "src-waukesha-parcels"
 county_fips = "55133"
 natural_key_field = "taxkey"
 has_stable_key = true
-# Waukesha taxkeys are unique after the placeholder skip. Stacked
-# geometry collapse stays off.
-collapse_duplicate_geometry = false
+# Collapse is on since 2026-10-17 (ADR-0014). The county layer returned two
+# features each for three new condo taxkeys with identical mapped fields.
+# Identical rows collapse to the lowest OBJECTID. Any mapped field
+# difference fails the load.
+collapse_duplicate_geometry = true
 # The observed distribution separates cleanly. Genuine fallbacks sit at 0.000.
 # Covered municipalities sit above 0.67, the lowest observed being BBV at
 # 589 of 876 (0.672). EGLT live classed is 1,493 of 1,921 (0.777);
