@@ -1,3 +1,4 @@
+pub mod accela;
 pub mod anthropic;
 pub mod assignment_list;
 pub mod assignments;
@@ -20,6 +21,7 @@ pub mod normalise;
 pub mod outcomes;
 pub mod parcels;
 pub mod rank;
+pub mod refresh;
 pub mod series;
 pub mod series_watch;
 pub mod signals;
@@ -77,12 +79,23 @@ pub use lira_extract::{
     extract_folder, format_validation_report, EXTRACTION_SCHEMA_FIELDS,
     LIRA_PDF_EXTRACT_SOURCE_ID,
 };
+pub use accela::{
+    apply_phone_privacy, detect_occupancy_new_business, fetch_and_load_accela_occupancy,
+    filter_occupancy_rows, load_accela_occupancy, newest_stored_record_date, next_poll_start_date,
+    parse_detail_html, parse_search_result_rows, print_accela_load,
+    detect_occupancy_new_business_for_load, OccupancyGridRow,
+    OccupancyLoadResult, OccupancyNewBusinessHit, ACCELA_OCCUPANCY_SOURCE_ID, NEW_BUSINESS_REASON,
+    RECORD_TYPE_OCCUPANCY,
+};
 pub use anthropic::{
     anthropic_api_key_from_env, anthropic_model_from_env, AnthropicClient,
     ANTHROPIC_API_KEY_ABSENT, DEFAULT_ANTHROPIC_MODEL,
 };
-pub use migrate::{apply_migrations, bundled_migrations, migrate, Migration};
-pub use normalise::normalise_owner_name;
+pub use migrate::{
+    apply_migrations, bundled_migrations, configure_connection, migrate, Migration,
+    SQLITE_BUSY_TIMEOUT,
+};
+pub use normalise::{normalise_owner_name, owner_group_key};
 pub use outcomes::{
     assignment_subject_key, county_fips_for_assignment_county, insert_outcome, latest_outcomes,
     outcome_history, parse_assignment_subject_key, LatestOutcome, OutcomeHistory, OutcomeRecord,
@@ -108,8 +121,8 @@ pub use parcels::{
 };
 pub use rank::{rank_groups, RankError, RankedGroup, TRIGGER_STATUS_UNWIRED};
 pub use signals::{
-    signal_catalogue, SignalCataloguePage, SignalCatalogueQuery, SignalCatalogRow,
-    SignalDirectionRow, VerticalCatalogRow, SOURCE_NOT_REGISTERED,
+    signal_catalogue, validate_vertical_catalog_tiers, SignalCataloguePage, SignalCatalogueQuery,
+    SignalCatalogRow, SignalDirectionRow, VerticalCatalogRow, SOURCE_NOT_REGISTERED,
 };
 pub use detection::improvement_zero_to_value::{
     detect_improvement_zero_to_value, insert_detections, list_detections, newest_set_for_pair,

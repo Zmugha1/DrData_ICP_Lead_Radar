@@ -14,13 +14,14 @@ use crate::error::ConfigError;
 use crate::manifest::Manifest;
 use crate::series::SeriesFile;
 use crate::sources::SourcesFile;
+use crate::tiers::TiersFile;
 use crate::triggers::Triggers;
 use crate::vocabulary::Vocabulary;
 use crate::work_scope::WorkScope;
 use crate::zones::Zones;
 use crate::RadarConfig;
 
-pub const REQUIRED_CONFIG_FILES: [&str; 13] = [
+pub const REQUIRED_CONFIG_FILES: [&str; 14] = [
     "manifest.toml",
     "entity.toml",
     "attributes.toml",
@@ -34,6 +35,7 @@ pub const REQUIRED_CONFIG_FILES: [&str; 13] = [
     "series.toml",
     "assignments.toml",
     "owner_type.toml",
+    "tiers.toml",
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -94,6 +96,12 @@ pub fn load(dir: &Path) -> Result<RadarConfig, ConfigError> {
     let series: SeriesFile = parse_file(dir, "series.toml")?;
     let assignments: AssignmentsFile = parse_file(dir, "assignments.toml")?;
     let owner_type: OwnerTypeFile = parse_file(dir, "owner_type.toml")?;
+    let tiers: TiersFile = parse_file(dir, "tiers.toml")?;
+    let search_query_templates = if dir.join("search_query_templates.toml").is_file() {
+        Some(parse_file(dir, "search_query_templates.toml")?)
+    } else {
+        None
+    };
 
     Ok(RadarConfig {
         manifest,
@@ -109,6 +117,8 @@ pub fn load(dir: &Path) -> Result<RadarConfig, ConfigError> {
         series,
         assignments,
         owner_type,
+        tiers,
+        search_query_templates,
     })
 }
 

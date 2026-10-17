@@ -7,6 +7,8 @@ pub struct Job {
     pub label: String,
     pub ticket_low: u32,
     pub ticket_high: u32,
+    #[serde(default)]
+    pub description: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]

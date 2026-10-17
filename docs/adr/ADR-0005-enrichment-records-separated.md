@@ -1,5 +1,5 @@
-# ADR-0005: Enrichment records, separated from entity attributes, with
-per-field provenance
+# ADR-0005: Enrichment records, separated from entity attributes,
+with per-field provenance (superseded)
 
 Status: Superseded by ADR-0006
 Date: 31 August 2026

@@ -1,0 +1,14 @@
+---
+description: Save every report, profile, or work summary as a Desktop markdown file
+alwaysApply: true
+---
+
+# Radar reports on Desktop
+
+Whenever you write a report, profile, investigation summary, or summary of work done, also save it as a `.md` file under `C:\Users\zumah\Desktop\radar_reports\`.
+
+- Use a fresh, descriptive filename. Do not overwrite an unrelated earlier report.
+- Do not rely on chat output alone.
+- Confirm the written file path at the end of the chat reply.
+- This is in addition to printing the findings in chat.
+- Do not treat this folder as an excuse to skip a path the user already named; if they specified a filename, use that path.

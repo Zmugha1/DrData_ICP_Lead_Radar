@@ -1,0 +1,72 @@
+# Stored templates for a later human or assisted search session.
+# Placeholders stay literal. These queries are not executed by this
+# repo, by Cursor, or by any automatic job.
+
+[[categories]]
+key = "estimating_bottleneck_live"
+vertical_keys = ["custom_homebuilder", "specialty_trade"]
+queries = [
+    "estimator job openings [county] construction 2026",
+    "\"hiring estimator\" OR \"seeking estimator\" [metro] contractor",
+    "preconstruction manager job [state] residential builder",
+]
+
+[[categories]]
+key = "succession_and_encoded_knowledge"
+vertical_keys = [
+    "custom_homebuilder",
+    "specialty_trade",
+    "landscape_design_build",
+    "restoration",
+    "manufacturer_custom_fabricator",
+]
+queries = [
+    "\"second generation\" OR \"third generation\" [trade] [county] family owned",
+    "[trade] company [county] \"founded in 19\"",
+    "[industry] [state] owner retiring succession plan",
+]
+
+[[categories]]
+key = "fixed_price_exposure"
+vertical_keys = ["custom_homebuilder", "specialty_trade"]
+queries = [
+    "custom home builder [county] \"guaranteed pricing\" OR \"fixed price\"",
+    "design build contractor [metro] \"price guarantee\"",
+]
+
+[[categories]]
+key = "visible_experts_and_channels"
+vertical_keys = [
+    "custom_homebuilder",
+    "specialty_trade",
+    "landscape_design_build",
+    "restoration",
+    "manufacturer_custom_fabricator",
+]
+queries = [
+    "[association] [state] board of directors 2026",
+    "[industry] podcast host [state] owner",
+    "[trade] association past president [state]",
+]
+
+[[categories]]
+key = "regulated_and_data_locked"
+vertical_keys = [
+    "accounting_bookkeeping",
+    "law_firm_repeatable_practice",
+    "financial_advisor_insurance",
+]
+queries = [
+    "independent CPA firm [county] specializing [niche]",
+    "estate planning attorney [county] solo OR small firm",
+    "independent RIA [metro] fee only advisor",
+]
+
+[[categories]]
+key = "custom_manufacturing"
+vertical_keys = ["manufacturer_custom_fabricator"]
+queries = [
+    "custom fabrication [county] \"made to order\" quote from drawings",
+    "job shop machining [metro] custom quoting",
+    "millwork manufacturer [state] custom",
+]

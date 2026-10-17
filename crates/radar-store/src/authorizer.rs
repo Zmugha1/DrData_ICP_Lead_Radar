@@ -18,6 +18,11 @@ const RECORD_TABLES: &[&str] = &[
     "lira_applications",
     "lira_pdf_extractions",
     "lira_pdf_extraction_fields",
+    "accela_occupancy",
+    "accela_occupancy_loads",
+    "vertical_catalog_descriptions",
+    "vertical_catalog_elicited",
+    "vertical_catalog_county_counts",
 ];
 
 pub fn install_write_authorizer(conn: &Connection) {

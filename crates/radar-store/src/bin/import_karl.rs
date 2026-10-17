@@ -114,6 +114,10 @@ fn open_source_ro(path: &Path) -> Result<Connection, rusqlite::Error> {
         uri,
         OpenFlags::SQLITE_OPEN_READ_ONLY | OpenFlags::SQLITE_OPEN_URI,
     )
+    .and_then(|conn| {
+        let _ = radar_store::configure_connection(&conn);
+        Ok(conn)
+    })
 }
 
 fn run_source_assertions(source: &Connection) -> Result<Vec<Check>, rusqlite::Error> {

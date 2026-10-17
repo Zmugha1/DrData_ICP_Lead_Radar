@@ -27,3 +27,11 @@ rationale = "no trained model and no outcome history. Six to twelve months of re
 assigned_on = "2026-08-30"
 expires_on = "2027-02-28"
 display_caveat = "Not available. This system prioritises prospects and does not predict who will buy."
+
+[[assignments]]
+capability_key = "property_management_operating_portfolio_review"
+zone = "Below"
+rationale = "A property management prospect must show units under management or a named portfolio. An entity holding one parcel with no website is not a prospect regardless of parcel count."
+assigned_on = "2026-09-18"
+expires_on = "2027-03-18"
+display_caveat = "A property_management_cre prospect with a high parcel count still requires manual confirmation of an operating portfolio before outreach. No source in this repo confirms units under management or a named portfolio. Parcel count is not that confirmation."

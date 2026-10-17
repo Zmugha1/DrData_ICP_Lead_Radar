@@ -30,4 +30,8 @@ pub enum StoreError {
     LiraPdf(String),
     #[error("anthropic: {0}")]
     Anthropic(String),
+    #[error("accela: {0}")]
+    Accela(String),
+    #[error("catalog: {0}")]
+    Catalog(String),
 }

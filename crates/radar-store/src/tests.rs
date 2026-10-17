@@ -58,6 +58,9 @@ fn migration_applies_clean() {
     assert!(table_exists(&conn, "muni_lookup"));
     assert!(table_exists(&conn, "term_glossary"));
     assert!(table_exists(&conn, "vertical_catalog"));
+    assert!(table_exists(&conn, "vertical_catalog_descriptions"));
+    assert!(table_exists(&conn, "vertical_catalog_elicited"));
+    assert!(table_exists(&conn, "vertical_catalog_county_counts"));
     assert!(table_exists(&conn, "signal_catalog"));
     assert!(table_exists(&conn, "signal_direction"));
     assert!(table_exists(&conn, "detections"));
@@ -103,7 +106,7 @@ fn applying_twice_is_a_noop() {
     let count: i64 = conn
         .query_row("SELECT COUNT(*) FROM schema_migrations", [], |row| row.get(0))
         .expect("count schema_migrations");
-    assert_eq!(count, 21);
+    assert_eq!(count, 26);
     assert!(table_exists(&conn, "entities"));
     assert!(view_exists(&conn, "current_entities"));
 }

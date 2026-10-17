@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::evaluate::{evaluate_attribute, AttributeEvaluation, EvaluateError};
 use crate::groups::{format_value_as_of_range, OwnerGroup};
-use crate::normalise::normalise_owner_name;
+use crate::normalise::owner_group_key;
 use crate::outcomes::{latest_outcomes, LatestOutcome, SUBJECT_OWNER_GROUP};
 use crate::rank::favourability_order;
 use crate::StoreError;
@@ -284,7 +284,7 @@ fn register_owner_group_sql_functions(
     conn.create_scalar_function("normalise_owner_name", 1, flags, |ctx| {
         let raw: Option<String> = ctx.get(0)?;
         Ok(raw
-            .map(|value| normalise_owner_name(&value))
+            .map(|value| owner_group_key(&value))
             .unwrap_or_default())
     })?;
     let types = owner_type.compiled();
@@ -426,7 +426,7 @@ pub fn list_owner_groups(
         binds.push(rusqlite::types::Value::Integer(min));
     }
     if let Some(needle) = cleaned.name_contains.as_deref() {
-        let normalised = normalise_owner_name(needle);
+        let normalised = owner_group_key(needle);
         let ph = alloc_placeholder(&mut param_i);
         filters.push(format!("instr(g.group_key, {ph}) > 0"));
         binds.push(rusqlite::types::Value::Text(normalised));
@@ -923,7 +923,7 @@ fn matches_filters(
         }
     }
     if let Some(needle) = query.name_contains.as_deref() {
-        let normalised = normalise_owner_name(needle);
+        let normalised = owner_group_key(needle);
         if normalised.is_empty() || !group.group_key.contains(&normalised) {
             return false;
         }
@@ -980,8 +980,8 @@ fn predicate_chain(
     }
     if let Some(name) = query.name_contains.as_deref() {
         lines.push(format!(
-            "normalise(owner_name) contains {}",
-            normalise_owner_name(name)
+            "owner_group_key contains {}",
+            owner_group_key(name)
         ));
     }
     lines.push(
@@ -1394,7 +1394,7 @@ mod tests {
         assert_eq!(page.rows[0].group_key, "BIELINSKI HOMES INC");
         assert!(page.predicate_chain.contains("group has muni_code = NBC"));
         assert!(page.predicate_chain.contains("owner_type = entity"));
-        assert!(page.predicate_chain.contains("normalise(owner_name) contains BIELINSKI HOMES INC"));
+        assert!(page.predicate_chain.contains("owner_group_key contains BIELINSKI HOMES INC"));
     }
 
     #[test]
@@ -1583,6 +1583,7 @@ mod tests {
             db.display()
         );
         let mut conn = Connection::open(&db).expect("open live store");
+        crate::migrate::configure_connection(&conn).expect("sqlite pragmas");
         migrate(&mut conn).expect("migrate live store");
         crate::current::rebuild_current_parcels(&conn, None).expect("rebuild current_parcels");
         let config = load(&config_dir).expect("load config");
@@ -1683,6 +1684,7 @@ mod tests {
         let config_dir = root.join("config/dr_data_icp");
         assert!(db.exists(), "live store missing at {}", db.display());
         let mut conn = Connection::open(&db).expect("open live store");
+        crate::migrate::configure_connection(&conn).expect("sqlite pragmas");
         let config = load(&config_dir).expect("load config");
         let county = config.manifest.county_fips.as_str();
         println!("MEASURE cwd is DrData_ICP_Lead_radar, not Karl-Intel-Desktop, not MVP_Hub");

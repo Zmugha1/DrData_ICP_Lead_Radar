@@ -98,25 +98,47 @@ pub fn validate(config: &RadarConfig) -> Vec<Finding> {
         }
     }
 
-    let classifier: HashSet<&str> = config
-        .vocabulary
-        .classifier_positive
-        .iter()
-        .chain(config.vocabulary.classifier_negative.iter())
-        .map(String::as_str)
-        .collect();
-    for (family, terms) in [
-        ("outreach_lead", &config.vocabulary.outreach_lead),
-        ("outreach_avoid", &config.vocabulary.outreach_avoid),
-    ] {
-        for term in terms {
-            if classifier.contains(term.as_str()) {
-                findings.push(finding(
-                    "V9",
-                    Severity::Error,
-                    format!("term {term} appears in both a classifier list and {family}"),
-                    format!("vocabulary.{family}"),
-                ));
+    let mut seen_vocab_keys = HashSet::new();
+    for (index, entry) in config.vocabulary.verticals.iter().enumerate() {
+        let location = format!(
+            "vocabulary.verticals[{index}] (vertical_key={})",
+            entry.vertical_key
+        );
+        if entry.vertical_key.trim().is_empty() {
+            findings.push(finding(
+                "V9",
+                Severity::Error,
+                "vertical_key must not be empty",
+                &location,
+            ));
+        }
+        if !seen_vocab_keys.insert(entry.vertical_key.clone()) {
+            findings.push(finding(
+                "V9",
+                Severity::Error,
+                format!("duplicate vertical_key {}", entry.vertical_key),
+                &location,
+            ));
+        }
+        let classifier: HashSet<&str> = entry
+            .classifier_positive
+            .iter()
+            .chain(entry.classifier_negative.iter())
+            .map(String::as_str)
+            .collect();
+        for (family, terms) in [
+            ("outreach_lead", &entry.outreach_lead),
+            ("outreach_avoid", &entry.outreach_avoid),
+        ] {
+            for term in terms {
+                if classifier.contains(term.as_str()) {
+                    findings.push(finding(
+                        "V9",
+                        Severity::Error,
+                        format!("term {term} appears in both a classifier list and {family}"),
+                        format!("{location}.{family}"),
+                    ));
+                }
             }
         }
     }
@@ -572,8 +594,119 @@ pub fn validate(config: &RadarConfig) -> Vec<Finding> {
     }
 
     check_v32_pages(config, &mut findings);
+    check_v33_tiers(config, &mut findings);
+    check_v34_search_templates(config, &mut findings);
 
     findings
+}
+
+fn check_v33_tiers(config: &RadarConfig, findings: &mut Vec<Finding>) {
+    const REQUIRED_KEYS: [&str; 3] = ["1", "2", "3"];
+    let mut seen = HashSet::new();
+    for (index, tier) in config.tiers.tiers.iter().enumerate() {
+        let location = format!("tiers[{index}] (tier_key={})", tier.tier_key);
+        if !REQUIRED_KEYS.contains(&tier.tier_key.as_str()) {
+            findings.push(finding(
+                "V33",
+                Severity::Error,
+                format!(
+                    "tier_key {} is not a real key; only 1, 2, or 3 are allowed",
+                    tier.tier_key
+                ),
+                &location,
+            ));
+        }
+        if !seen.insert(tier.tier_key.clone()) {
+            findings.push(finding(
+                "V33",
+                Severity::Error,
+                format!("duplicate tier_key {}", tier.tier_key),
+                &location,
+            ));
+        }
+        if tier.label.trim().is_empty()
+            || tier.description.trim().is_empty()
+            || tier.what_they_buy.trim().is_empty()
+            || tier.price_band.trim().is_empty()
+            || tier.scoring_rule.trim().is_empty()
+        {
+            findings.push(finding(
+                "V33",
+                Severity::Error,
+                "each tier must have a non-empty label, description, what_they_buy, price_band, and scoring_rule",
+                &location,
+            ));
+        }
+        if tier.scoring_checks.len() != 5
+            || tier.scoring_checks.iter().any(|check| check.trim().is_empty())
+        {
+            findings.push(finding(
+                "V33",
+                Severity::Error,
+                "each tier must carry the five-check scoring list",
+                &location,
+            ));
+        }
+    }
+    if let Some(first) = config.tiers.tiers.first() {
+        for (index, tier) in config.tiers.tiers.iter().enumerate().skip(1) {
+            if tier.scoring_checks != first.scoring_checks || tier.scoring_rule != first.scoring_rule
+            {
+                findings.push(finding(
+                    "V33",
+                    Severity::Error,
+                    "scoring_checks and scoring_rule must be identical across all tiers",
+                    format!("tiers[{index}] (tier_key={})", tier.tier_key),
+                ));
+            }
+        }
+    }
+    for required in REQUIRED_KEYS {
+        if !config.tiers.contains_key(required) {
+            findings.push(finding(
+                "V33",
+                Severity::Error,
+                format!("tiers.toml must define tier_key {required}"),
+                "tiers",
+            ));
+        }
+    }
+}
+
+fn check_v34_search_templates(config: &RadarConfig, findings: &mut Vec<Finding>) {
+    let Some(templates) = config.search_query_templates.as_ref() else {
+        return;
+    };
+    for (index, category) in templates.categories.iter().enumerate() {
+        let location = format!("search_query_templates.categories[{index}] (key={})", category.key);
+        if category.key.trim().is_empty() {
+            findings.push(finding(
+                "V34",
+                Severity::Error,
+                "search template category key must not be empty",
+                &location,
+            ));
+        }
+        if category.vertical_keys.is_empty()
+            || category.vertical_keys.iter().any(|key| key.trim().is_empty())
+        {
+            findings.push(finding(
+                "V34",
+                Severity::Error,
+                "each search template category must name at least one vertical_key",
+                &location,
+            ));
+        }
+        if category.queries.is_empty() || category.queries.iter().any(|query| query.trim().is_empty())
+        {
+            findings.push(finding(
+                "V34",
+                Severity::Error,
+                "each search template category must have a non-empty queries list",
+                &location,
+            ));
+        }
+    }
 }
 
 fn check_v32_pages(config: &RadarConfig, findings: &mut Vec<Finding>) {

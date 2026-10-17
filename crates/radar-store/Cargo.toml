@@ -68,3 +68,11 @@ path = "src/bin/fetch_lira_pdfs.rs"
 [[bin]]
 name = "extract_lira_pdfs"
 path = "src/bin/extract_lira_pdfs.rs"
+
+[[bin]]
+name = "load_accela_occupancy"
+path = "src/bin/load_accela_occupancy.rs"
+
+[[bin]]
+name = "refresh_all"
+path = "src/bin/refresh_all.rs"

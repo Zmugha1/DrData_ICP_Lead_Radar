@@ -106,7 +106,7 @@ url = "https://data.milwaukee.gov/dataset/1aba8821-f5f6-4031-b469-5c39c90e99c7/r
 url_verified = true
 requires_key = false
 attribution = "City of Milwaukee Open Data Portal, CC BY 4.0."
-notes = "profiled 1 September 2026. 1,255 active licences, nightly overwrite. Six licence classes, Class B Tavern 892. LICENSEE carries an Agt or SP suffix, 1,196 agent and 57 sole proprietor. TAXKEY joins to Milwaukee County parcels, 15 rows carry a 0000000000 placeholder. No licence number and no new-versus-renewal column, so EFF_DATE is a term start rather than an issuance date and new licences require a stored baseline and a nightly diff. Adapter fetches the CKAN CSV with a browser User-Agent. Tier 3 hospitality."
+notes = "profiled 1 September 2026. 1,255 active licences, nightly overwrite. Six licence classes, Class B Tavern 892. LICENSEE carries an Agt or SP suffix, 1,196 agent and 57 sole proprietor. TAXKEY joins to Milwaukee County parcels, 15 rows carry a 0000000000 placeholder. No licence number and no new-versus-renewal column, so EFF_DATE is a term start rather than an issuance date and new licences require a stored baseline and a nightly diff. Adapter fetches the CKAN CSV with a browser User-Agent. Serves tiers.toml tier_key 3 (hospitality is a source note, not a vertical_key)."
 
 [[sources]]
 source_id = "src-npi-registry"
@@ -118,7 +118,7 @@ cadence_days = 7
 lag_measured = false
 url_verified = false
 requires_key = false
-notes = "free weekly incremental and monthly full file from CMS under FOIA disclosure. Ten digit NPI key, national, complete for medical, dental, veterinary and behavioural health. Provider Enumeration Date is a first-assignment date, not a term start, so it is a genuine opening-day signal. Tier 2 clinical. Not profiled."
+notes = "free weekly incremental and monthly full file from CMS under FOIA disclosure. Ten digit NPI key, national, complete for medical, dental, veterinary and behavioural health. Provider Enumeration Date is a first-assignment date, not a term start, so it is a genuine opening-day signal. Serves tiers.toml tier_key 2 (clinical is a source note, not a vertical_key). Not profiled."
 
 [[sources]]
 source_id = "src-sam-gov"
@@ -140,7 +140,7 @@ status = "Scoped"
 lag_measured = false
 url_verified = false
 requires_key = false
-notes = "restaurants, retail food, food processors and pest control. Lookup tools carry issuance and expiry dates. Bulk route unknown. Serves Tier 3 hospitality and the pest vertical. Not profiled."
+notes = "restaurants, retail food, food processors and pest control. Lookup tools carry issuance and expiry dates. Bulk route unknown. Serves tiers.toml tier_key 3 (hospitality is a source note, not a vertical_key) and the pest_control vertical. Not profiled."
 
 [[sources]]
 source_id = "src-dhs-care-facilities"
@@ -151,7 +151,7 @@ status = "Scoped"
 lag_measured = false
 url_verified = false
 requires_key = false
-notes = "assisted living, adult family homes, childcare. Carries certification and licence effective dates. Tier 2 with the strongest custody argument. Not profiled."
+notes = "assisted living, adult family homes, childcare. Carries certification and licence effective dates. Serves tiers.toml tier_key 2, the custody criterion in that tier's description. Not profiled."
 
 [[sources]]
 source_id = "src-dsps-credentials"
@@ -162,7 +162,7 @@ status = "Scoped"
 lag_measured = false
 url_verified = false
 requires_key = true
-notes = "licensed trades, electrical, plumbing, HVAC, dwelling contractor. Issue date and expiry per credential. A REST API is said to exist for authorised third parties, and what authorised means in practice is unverified. Tier 1 trades. Not profiled."
+notes = "licensed trades, electrical, plumbing, HVAC, dwelling contractor. Issue date and expiry per credential. A REST API is said to exist for authorised third parties, and what authorised means in practice is unverified. Serves tiers.toml tier_key 1 (trades). Not profiled."
 
 [[sources]]
 source_id = "src-municipal-contractor-rolls"
@@ -173,7 +173,7 @@ status = "Scoped"
 lag_measured = false
 url_verified = false
 requires_key = false
-notes = "fourteen municipalities, each publishing separately if at all. Not one integration. Tier 1 trades. Not profiled."
+notes = "fourteen municipalities, each publishing separately if at all. Not one integration. Serves tiers.toml tier_key 1 (trades). Not profiled."
 
 [[sources]]
 source_id = "src-municipal-plan-commission-agendas"
@@ -206,7 +206,7 @@ status = "Scoped"
 lag_measured = false
 url_verified = true
 requires_key = false
-notes = "profiled 31 August 2026. 1,099 records publicly retrievable, 642 companies and 457 people. 576 of 642 companies carry a website, which is the domain source that unblocks site fetch and careers monitoring. Member type comes in bulk, 163 Builder Members. Categories and member since require a per-member fetch. Written permission granted by MBA. Tier 1 trades."
+notes = "profiled 31 August 2026. 1,099 records publicly retrievable, 642 companies and 457 people. 576 of 642 companies carry a website, which is the domain source that unblocks site fetch and careers monitoring. Member type comes in bulk, 163 Builder Members. Categories and member since require a per-member fetch. Written permission granted by MBA. Serves tiers.toml tier_key 1 (trades)."
 
 [[sources]]
 source_id = "src-uspto"
@@ -217,7 +217,7 @@ status = "Scoped"
 lag_measured = false
 url_verified = false
 requires_key = false
-notes = "free federal bulk data and APIs, carries a Nice class or CPC code which is the industry classification DFI lacks, plus a filing date and an applicant name and address. Two assumptions untested: whether county-level volume is more than a handful a year, and whether the assignee address is the operating site or the filing attorney's office. Relevant to manufacturers and custom fabricators, and to Tier 2 intellectual property holders whose research cannot go into a cloud tool."
+notes = "free federal bulk data and APIs, carries a Nice class or CPC code which is the industry classification DFI lacks, plus a filing date and an applicant name and address. Two assumptions untested: whether county-level volume is more than a handful a year, and whether the assignee address is the operating site or the filing attorney's office. Relevant to manufacturers and custom fabricators, and to tiers.toml tier_key 2 intellectual property holders whose research cannot go into a cloud tool."
 
 [[sources]]
 source_id = "src-noaa-storm-events"

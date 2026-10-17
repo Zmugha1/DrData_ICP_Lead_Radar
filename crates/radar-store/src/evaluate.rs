@@ -209,18 +209,19 @@ mod tests {
                     label: "J".to_string(),
                     ticket_low: 1,
                     ticket_high: 2,
+                    description: None,
                 }],
                 capacity: Capacity {
                     builds_concurrent: 1,
                     first_meetings_per_week: 1,
                 },
             },
-            vocabulary: Vocabulary {
-                classifier_positive: vec!["a".to_string()],
-                classifier_negative: vec!["b".to_string()],
-                outreach_lead: vec!["c".to_string()],
-                outreach_avoid: vec!["d".to_string()],
-            },
+            vocabulary: Vocabulary::from_test_lists(
+                vec!["a".to_string()],
+                vec!["b".to_string()],
+                vec!["c".to_string()],
+                vec!["d".to_string()],
+            ),
             zones: Zones {
                 assignments: vec![ZoneAssignment {
                     capability_key: "k".to_string(),
@@ -310,6 +311,8 @@ mod tests {
             series: SeriesFile { series: vec![] },
             assignments: AssignmentsFile::from_dr_data_file(),
             owner_type: radar_config::OwnerTypeFile::from_dr_data_file(),
+            tiers: radar_config::TiersFile::test_fixture(),
+            search_query_templates: None,
         }
     }
 

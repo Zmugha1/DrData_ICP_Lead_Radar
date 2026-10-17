@@ -19,7 +19,7 @@ use crate::validate::{validate, Severity};
 use crate::vocabulary::Vocabulary;
 use crate::work_scope::{Capacity, Job, WorkScope};
 use crate::zones::{Zone, ZoneAssignment, Zones};
-use crate::{nav_pages, PageEntry, RadarConfig};
+use crate::{nav_pages, PageEntry, RadarConfig, TiersFile};
 
 fn sample_field_map() -> FieldMap {
     FieldMap {
@@ -136,18 +136,19 @@ fn valid_config() -> RadarConfig {
                 label: "Inspect".to_string(),
                 ticket_low: 100,
                 ticket_high: 500,
+                description: None,
             }],
             capacity: Capacity {
                 builds_concurrent: 1,
                 first_meetings_per_week: 1,
             },
         },
-        vocabulary: Vocabulary {
-            classifier_positive: vec!["buy".to_string()],
-            classifier_negative: vec!["spam".to_string()],
-            outreach_lead: vec!["hello".to_string()],
-            outreach_avoid: vec!["lawsuit".to_string()],
-        },
+        vocabulary: Vocabulary::from_test_lists(
+            vec!["buy".to_string()],
+            vec!["spam".to_string()],
+            vec!["hello".to_string()],
+            vec!["lawsuit".to_string()],
+        ),
         zones: Zones {
             assignments: vec![ZoneAssignment {
                 capability_key: "score".to_string(),
@@ -203,10 +204,12 @@ fn valid_config() -> RadarConfig {
         },
         assignments: AssignmentsFile::from_dr_data_file(),
         owner_type: OwnerTypeFile::from_dr_data_file(),
+        tiers: TiersFile::test_fixture(),
+        search_query_templates: None,
     }
 }
 
-fn valid_file_bodies() -> [(&'static str, &'static str); 13] {
+fn valid_file_bodies() -> [(&'static str, &'static str); 14] {
     [
         (
             "manifest.toml",
@@ -320,6 +323,8 @@ first_meetings_per_week = 1
         (
             "vocabulary.toml",
             r#"
+[[verticals]]
+vertical_key = "test"
 classifier_positive = ["buy"]
 classifier_negative = ["spam"]
 outreach_lead = ["hello"]
@@ -447,6 +452,55 @@ type_key = "entity"
 phrases = [{ text = "LLC" }]
 "#,
         ),
+        (
+            "tiers.toml",
+            r#"
+[[tiers]]
+tier_key = "1"
+label = "Tier 1"
+description = "test description for tier 1"
+what_they_buy = "test purchase for tier 1"
+price_band = "test price band for tier 1"
+scoring_checks = [
+    "A named decision with money attached",
+    "Their own historical data exists somewhere, even in spreadsheets",
+    "One person's judgment is doing the work",
+    "Data they would not want in a cloud tool",
+    "An active trigger: hiring an estimator, succession underway, a recent cost shock, a compliance deadline",
+]
+scoring_rule = "Five of five is a Tier 1 build. Three or four is worth a discovery meeting. Under three is Tier 3 or a pass."
+
+[[tiers]]
+tier_key = "2"
+label = "Tier 2"
+description = "test description for tier 2"
+what_they_buy = "test purchase for tier 2"
+price_band = "test price band for tier 2"
+scoring_checks = [
+    "A named decision with money attached",
+    "Their own historical data exists somewhere, even in spreadsheets",
+    "One person's judgment is doing the work",
+    "Data they would not want in a cloud tool",
+    "An active trigger: hiring an estimator, succession underway, a recent cost shock, a compliance deadline",
+]
+scoring_rule = "Five of five is a Tier 1 build. Three or four is worth a discovery meeting. Under three is Tier 3 or a pass."
+
+[[tiers]]
+tier_key = "3"
+label = "Tier 3"
+description = "test description for tier 3"
+what_they_buy = "test purchase for tier 3"
+price_band = "test price band for tier 3"
+scoring_checks = [
+    "A named decision with money attached",
+    "Their own historical data exists somewhere, even in spreadsheets",
+    "One person's judgment is doing the work",
+    "Data they would not want in a cloud tool",
+    "An active trigger: hiring an estimator, succession underway, a recent cost shock, a compliance deadline",
+]
+scoring_rule = "Five of five is a Tier 1 build. Three or four is worth a discovery meeting. Under three is Tier 3 or a pass."
+"#,
+        ),
     ]
 }
 
@@ -566,6 +620,9 @@ fn load_succeeds_when_all_ten_parse() {
     assert_eq!(config.attributes.attributes.len(), 1);
     assert_eq!(config.series.series.len(), 1);
     assert_eq!(config.series.series[0].series_id, "HOUST");
+    assert_eq!(config.tiers.tiers.len(), 3);
+    assert_eq!(config.vocabulary.verticals.len(), 1);
+    assert_eq!(config.vocabulary.verticals[0].vertical_key, "test");
 }
 
 #[test]
@@ -630,8 +687,8 @@ fn below_zone_without_caveat_rejected() {
 #[test]
 fn term_in_both_list_families_rejected() {
     let mut config = valid_config();
-    config.vocabulary.classifier_positive = vec!["alpha".to_string()];
-    config.vocabulary.outreach_lead = vec!["alpha".to_string()];
+    config.vocabulary.verticals[0].classifier_positive = vec!["alpha".to_string()];
+    config.vocabulary.verticals[0].outreach_lead = vec!["alpha".to_string()];
     let findings = validate(&config);
     assert!(has_rule(&findings, "V9"));
 }
@@ -677,6 +734,20 @@ fn dr_data_icp_config_loads_and_is_ready() {
         errors.is_empty(),
         "expected zero Error findings, got {errors:?}"
     );
+    assert_eq!(config.tiers.tiers[0].label, "Judgment encoding");
+    assert!(config
+        .vocabulary
+        .for_vertical("manufacturer_custom_fabricator")
+        .is_some());
+    assert!(config
+        .vocabulary
+        .for_vertical("energy_assessor")
+        .is_none());
+    let templates = config
+        .search_query_templates
+        .as_ref()
+        .expect("search_query_templates.toml is present for dr_data_icp");
+    assert_eq!(templates.categories.len(), 6);
     let state = SessionState::from_dir(&dir).expect("from_dir should succeed");
     match state {
         SessionState::Ready { warnings, .. } => {
@@ -690,6 +761,22 @@ fn dr_data_icp_config_loads_and_is_ready() {
         }
         other => panic!("expected Ready, got {other:?}"),
     }
+}
+
+#[test]
+fn unknown_tier_key_rejected() {
+    let mut config = valid_config();
+    config.tiers.tiers[0].tier_key = "4".to_string();
+    let findings = validate(&config);
+    assert!(has_rule(&findings, "V33"));
+}
+
+#[test]
+fn missing_tier_key_rejected() {
+    let mut config = valid_config();
+    config.tiers.tiers.pop();
+    let findings = validate(&config);
+    assert!(has_rule(&findings, "V33"));
 }
 
 #[test]

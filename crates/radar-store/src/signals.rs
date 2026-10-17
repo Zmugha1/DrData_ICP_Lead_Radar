@@ -32,6 +32,8 @@ pub struct VerticalCatalogRow {
     pub vertical_key: String,
     pub label: String,
     pub tier: String,
+    pub description: Option<String>,
+    pub confirmed_in_county_count: Option<i64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -71,6 +73,7 @@ pub fn signal_catalogue(
     conn: &Connection,
     query: &SignalCatalogueQuery,
 ) -> Result<SignalCataloguePage, StoreError> {
+    validate_vertical_catalog_tiers(config, conn)?;
     Ok(SignalCataloguePage {
         verticals: list_verticals(conn)?,
         signals: list_signals(conn)?,
@@ -78,17 +81,50 @@ pub fn signal_catalogue(
     })
 }
 
+/// Every vertical_catalog.tier value must be a tier_key in tiers.toml.
+/// This is the store-side half of V33. Config cannot foreign-key SQLite
+/// to a TOML file, so the check runs when the catalogue is read.
+pub fn validate_vertical_catalog_tiers(
+    config: &RadarConfig,
+    conn: &Connection,
+) -> Result<(), StoreError> {
+    let mut stmt = conn.prepare("SELECT vertical_key, tier FROM vertical_catalog")?;
+    let rows = stmt.query_map([], |row| {
+        Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+    })?;
+    for row in rows {
+        let (vertical_key, tier) = row?;
+        if !config.tiers.contains_key(&tier) {
+            return Err(StoreError::Catalog(format!(
+                "vertical_catalog.{vertical_key} has tier {tier} which is not a tier_key in tiers.toml"
+            )));
+        }
+    }
+    Ok(())
+}
+
 fn list_verticals(conn: &Connection) -> Result<Vec<VerticalCatalogRow>, StoreError> {
     let mut stmt = conn.prepare(
-        "SELECT vertical_key, label, tier
-         FROM vertical_catalog
-         ORDER BY tier, label",
+        "SELECT v.vertical_key, v.label, v.tier, e.description,
+                COALESCE(
+                    (SELECT c.group_count
+                     FROM vertical_catalog_county_counts c
+                     WHERE c.vertical_key = v.vertical_key
+                     ORDER BY c.measured_on DESC
+                     LIMIT 1),
+                    e.confirmed_in_county_count
+                )
+         FROM vertical_catalog v
+         LEFT JOIN vertical_catalog_elicited e ON e.vertical_key = v.vertical_key
+         ORDER BY v.tier, v.label",
     )?;
     let rows = stmt.query_map([], |row| {
         Ok(VerticalCatalogRow {
             vertical_key: row.get(0)?,
             label: row.get(1)?,
             tier: row.get(2)?,
+            description: row.get(3)?,
+            confirmed_in_county_count: row.get(4)?,
         })
     })?;
     let mut out = Vec::new();
@@ -519,7 +555,8 @@ mod tests {
                         "improvement_zero_to_value"
                         | "new_liquor_licence"
                         | "liquor_licence_ended"
-                        | "licensee_changed" => {
+                        | "licensee_changed"
+                        | "occupancy_new_business" => {
                             assert!(path.is_file());
                             assert_eq!(derived, DETECTION_BUILT);
                         }
@@ -532,5 +569,56 @@ mod tests {
                 other => panic!("unexpected detection_method {other}"),
             }
         }
+    }
+
+    #[test]
+    fn every_vertical_tier_matches_tiers_toml() {
+        let conn = open();
+        let config = test_config(1, "caveat", test_bands());
+        super::validate_vertical_catalog_tiers(&config, &conn).expect("tiers match");
+        let page = signal_catalogue(&config, &conn, &SignalCatalogueQuery::default())
+            .expect("catalogue");
+        assert_eq!(page.verticals.len(), 19);
+        for vertical in &page.verticals {
+            assert!(
+                config.tiers.contains_key(&vertical.tier),
+                "vertical {} tier {}",
+                vertical.vertical_key,
+                vertical.tier
+            );
+        }
+        let realtor = page
+            .verticals
+            .iter()
+            .find(|row| row.vertical_key == "realtor")
+            .expect("realtor");
+        assert!(realtor.description.is_none());
+        let builder = page
+            .verticals
+            .iter()
+            .find(|row| row.vertical_key == "custom_homebuilder")
+            .expect("builder");
+        assert_eq!(builder.confirmed_in_county_count, Some(136));
+        assert!(builder
+            .description
+            .as_ref()
+            .expect("elicited")
+            .contains("Guaranteed or fixed pricing"));
+    }
+
+    #[test]
+    fn catalog_tier_unknown_to_tiers_toml_is_refused() {
+        let conn = open();
+        conn.execute(
+            "UPDATE vertical_catalog SET tier = '9' WHERE vertical_key = 'realtor'",
+            [],
+        )
+        .expect("mutate fixture");
+        let config = test_config(1, "caveat", test_bands());
+        let err = signal_catalogue(&config, &conn, &SignalCatalogueQuery::default())
+            .expect_err("unknown tier");
+        let text = err.to_string();
+        assert!(text.contains("realtor"), "{text}");
+        assert!(text.contains("9"), "{text}");
     }
 }

@@ -3,3 +3,4 @@ pub mod liquor;
 pub mod new_liquor_licence;
 pub mod liquor_licence_ended;
 pub mod licensee_changed;
+pub mod occupancy_new_business;

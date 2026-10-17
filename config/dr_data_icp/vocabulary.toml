@@ -1,59 +1,111 @@
+[[verticals]]
+vertical_key = "manufacturer_custom_fabricator"
 classifier_positive = [
-    "estimator",
-    "senior estimator",
-    "preconstruction",
-    "takeoff specialist",
-    "bid coordinator",
-    "project estimator",
-    "cost analyst",
-    "second generation",
-    "third generation",
-    "family owned since",
-    "founded in 19",
-    "guaranteed pricing",
-    "fixed price",
-    "price guarantee",
     "made to order",
     "custom fabrication",
-    "no two the same",
-    "job shop",
     "quote from drawings",
-    "IICRC",
-    "ISO certified",
-    "board of directors",
-    "past president",
-    "HIPAA",
-    "fiduciary",
-    "independent RIA",
+    "job shop",
+    "ISO 9001",
+    "AS9100",
+    "our engineering team",
+    "tolerances",
+    "prototype to production",
 ]
-# Last five terms come from a real conversation. The pattern is
-# agreement without authority: enthusiasm from someone who cannot
-# sign. "there is a gap" counts only when it is unaccompanied by a
-# number, which is a judgment a term match cannot make, so the term
-# flags for review rather than deciding anything.
 classifier_negative = [
-    "we already have a tool for that",
-    "I built my own",
-    "we want AI",
-    "pure catalog",
-    "our corporate",
-    "our national office",
-    "streamline our processes",
-    "we can see how",
-    "there is a gap",
+    "catalogue",
+    "standard product line",
+    "distributor for",
+    "stocking",
 ]
-outreach_lead = [
-    "a decision where being wrong costs money",
-    "priced against your own history",
-    "Waukesha County",
-    "bids quotes or estimates for a living",
+
+[[verticals]]
+vertical_key = "property_management_cre"
+classifier_positive = [
+    "managed properties",
+    "our portfolio",
+    "resident portal",
+    "now leasing",
+    "maintenance requests",
+    "units under management",
+    "since 19",
+    "family owned",
 ]
-outreach_avoid = [
-    "AI",
-    "artificial intelligence",
-    "private",
-    "local-first",
-    "on-premise",
-    "Tauri",
-    "Ollama",
+classifier_negative = [
+    "a single address as the entire site",
+    "no site at all",
+    "listing-site profile only",
+]
+
+[[verticals]]
+vertical_key = "restoration"
+classifier_positive = [
+    "IICRC certified",
+    "24 hour emergency response",
+    "water fire mold",
+    "we work with all insurance carriers",
+    "direct billing",
+]
+classifier_negative = [
+    "franchise",
+    "a locally owned and operated franchise",
+]
+
+[[verticals]]
+vertical_key = "medical_dental_veterinary"
+classifier_positive = [
+    "independent practice",
+    "physician owned",
+    "we have served since",
+    "our doctors",
+]
+classifier_negative = [
+    "part of the health system",
+    "a member of the network",
+    "DSO",
+    "affiliated with",
+]
+
+[[verticals]]
+vertical_key = "accounting_bookkeeping"
+classifier_positive = [
+    "CPA",
+    "tax and assurance",
+    "client accounting services",
+    "our niche is",
+    "fractional CFO",
+]
+classifier_negative = [
+    "a member of an alliance of firms",
+    "acquired by",
+    "now part of",
+]
+
+[[verticals]]
+vertical_key = "law_firm_repeatable_practice"
+classifier_positive = [
+    "we focus exclusively on",
+    "our practice is limited to",
+    "over 1,000 cases",
+    "board certified",
+]
+classifier_negative = [
+    "full service",
+    "general practice",
+    "all areas of law",
+]
+
+[[verticals]]
+vertical_key = "financial_advisor_insurance"
+classifier_positive = [
+    "independent RIA",
+    "fee only",
+    "fiduciary",
+    "our investment process",
+    "ADV",
+    "principal since",
+]
+classifier_negative = [
+    "captive",
+    "a registered representative of",
+    "offering securities through",
 ]

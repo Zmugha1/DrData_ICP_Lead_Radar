@@ -28,6 +28,7 @@ pub enum SourceKind {
     Api,
     PageDiff,
     ManualUpload,
+    AccelaSession,
 }
 
 impl SourceKind {
@@ -38,6 +39,7 @@ impl SourceKind {
             SourceKind::Api => "Api",
             SourceKind::PageDiff => "PageDiff",
             SourceKind::ManualUpload => "ManualUpload",
+            SourceKind::AccelaSession => "AccelaSession",
         }
     }
 }

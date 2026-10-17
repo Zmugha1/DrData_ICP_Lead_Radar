@@ -4,7 +4,7 @@ use radar_config::OwnerTypeFile;
 use rusqlite::Connection;
 
 use crate::error::StoreError;
-use crate::normalise::normalise_owner_name;
+use crate::normalise::owner_group_key;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct OwnerGroup {
@@ -89,7 +89,7 @@ pub fn fetch_owner_groups_in_county(
         let Some(raw) = owner_name else {
             continue;
         };
-        let key = normalise_owner_name(&raw);
+        let key = owner_group_key(&raw);
         if key.is_empty() {
             continue;
         }

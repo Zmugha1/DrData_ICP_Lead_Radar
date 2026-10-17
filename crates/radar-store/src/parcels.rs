@@ -419,14 +419,13 @@ fn raw_from_mapped(
     vintage_field: Option<&str>,
     lookup_fields: Option<(&str, &str)>,
 ) -> Result<RawParcel, StoreError> {
-    let raw_taxkey = json_attr_string(attrs, &map.taxkey).ok_or_else(|| {
-        StoreError::ParcelFetch(format!("TAXKEY field {} absent", map.taxkey))
-    })?;
-    let taxkey = normalise_taxkey(&raw_taxkey);
+    let raw_taxkey = json_attr_string(attrs, &map.taxkey).unwrap_or_default();
+    let mut taxkey = normalise_taxkey(&raw_taxkey);
+    // A null or blank TAXKEY is not "field absent". Milwaukee's live
+    // layer still names the field TAXKEY (verified 18 September 2026)
+    // and currently has 544 null values. Skip those as unknown non-keys.
     if taxkey.is_empty() {
-        return Err(StoreError::ParcelFetch(
-            "TAXKEY empty after normalisation".to_string(),
-        ));
+        taxkey = "<Null>".to_string();
     }
     let export_date = vintage_field.and_then(|field| json_attr_f64(attrs, field).and_then(export_date_to_ymd));
     let owner_name = mapped_string(attrs, Some(map.owner_name.as_str()));
@@ -496,6 +495,9 @@ fn skip_non_parcel_keys(
             true
         } else if is_non_parcel_key(&row.taxkey) {
             *unknown.entry(row.taxkey.clone()).or_insert(0) += 1;
+            true
+        } else if row.muni_code.is_none() {
+            *unknown.entry("<null-muni>".to_string()).or_insert(0) += 1;
             true
         } else {
             false

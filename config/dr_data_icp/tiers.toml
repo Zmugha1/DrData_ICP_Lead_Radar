@@ -1,0 +1,72 @@
+[[tiers]]
+tier_key = "1"
+label = "Judgment encoding"
+description = """
+Decisions carry money. Their own history is the asset.
+One person's judgment is effectively the business, and that
+judgment is not documented.
+"""
+what_they_buy = """
+A private system on their own hardware, one time
+build, that encodes how they decide and prices against their own
+history.
+"""
+price_band = "$2,500 to $15,000 build, plus hardware."
+scoring_checks = [
+    "A named decision with money attached",
+    "Their own historical data exists somewhere, even in spreadsheets",
+    "One person's judgment is doing the work",
+    "Data they would not want in a cloud tool",
+    "An active trigger: hiring an estimator, succession underway, a recent cost shock, a compliance deadline",
+]
+scoring_rule = "Five of five is a Tier 1 build. Three or four is worth a discovery meeting. Under three is Tier 3 or a pass."
+
+[[tiers]]
+tier_key = "2"
+label = "Data locked"
+description = """
+Regulated or confidential data that cannot go to a
+cloud tool regardless of how good the tool is. Compliance answers
+the privacy question before you ask it.
+"""
+what_they_buy = "The same system, sold on custody rather than judgment."
+price_band = """
+$4,000 to $20,000, often with recurring compliance
+reporting.
+"""
+note = """
+Tier 2 is largely invisible to parcel data. Most of these
+businesses lease. They are found through licensure, not property.
+NPI, DSPS, the state bar directory, SEC IAPD and FINRA BrokerCheck
+are the real routes.
+"""
+scoring_checks = [
+    "A named decision with money attached",
+    "Their own historical data exists somewhere, even in spreadsheets",
+    "One person's judgment is doing the work",
+    "Data they would not want in a cloud tool",
+    "An active trigger: hiring an estimator, succession underway, a recent cost shock, a compliance deadline",
+]
+scoring_rule = "Five of five is a Tier 1 build. Three or four is worth a discovery meeting. Under three is Tier 3 or a pass."
+
+[[tiers]]
+tier_key = "3"
+label = "Configuration"
+description = """
+Their pain is time and repetition, not judgment. Data
+is not sensitive. Nothing to protect.
+"""
+what_they_buy = """
+Setup on tools they already pay for. Prompt
+libraries, connectors, project structures, training.
+"""
+price_band = "$500 to $2,500, delivered in days."
+note = "Do not oversell these into Tier 1. It wastes their money and your time."
+scoring_checks = [
+    "A named decision with money attached",
+    "Their own historical data exists somewhere, even in spreadsheets",
+    "One person's judgment is doing the work",
+    "Data they would not want in a cloud tool",
+    "An active trigger: hiring an estimator, succession underway, a recent cost shock, a compliance deadline",
+]
+scoring_rule = "Five of five is a Tier 1 build. Three or four is worth a discovery meeting. Under three is Tier 3 or a pass."

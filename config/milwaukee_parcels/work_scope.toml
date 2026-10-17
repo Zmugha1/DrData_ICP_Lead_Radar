@@ -21,6 +21,7 @@ key = "tier3_configuration"
 label = "Tier 3 configuration"
 ticket_low = 500
 ticket_high = 2500
+description = "Same meaning as tiers.toml tier_key 3. Realtor, MSP and IT services, and pest control are the encoded verticals; hospitality in source notes is not a separate vertical_key. An active trigger may exist without the rest of the five-criteria cluster (named decision with money attached, own historical data, one person's judgment, data unsuitable for a cloud tool, active trigger). The ticket is 500 to 2500 because this is configuration of an existing product, not a Market Watcher, AgentPulse, or Plan Generator build."
 
 [capacity]
 builds_concurrent = 2
