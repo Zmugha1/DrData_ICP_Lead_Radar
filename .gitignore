@@ -9,3 +9,8 @@ __pycache__/
 *.pyc
 reports/*.xlsx
 reports/~$*
+# local-only files and folders
+*.local.json
+node_modules/
+radar_reports/
+radar_backups/
